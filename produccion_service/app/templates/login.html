@@ -1,10 +1,30 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Cantina — Producción</title>
   <style>
+    /* ── Variables de tema ──────────────────────────────── */
+    :root {
+      --card-bg:      #ffffff;
+      --card-text:    #1a1a2e;
+      --label-color:  #555555;
+      --input-bg:     #ffffff;
+      --input-text:   #1a1a2e;
+      --input-border: #e0e0e0;
+      --link-color:   #888888;
+    }
+    [data-theme="dark"] {
+      --card-bg:      #161b22;
+      --card-text:    #e6edf3;
+      --label-color:  #8b949e;
+      --input-bg:     #0d1117;
+      --input-text:   #e6edf3;
+      --input-border: #30363d;
+      --link-color:   #6e7681;
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
@@ -18,6 +38,23 @@
       padding: 20px;
     }
 
+    /* ── Toggle de tema ──────────────────────────────────── */
+    .btn-tema {
+      position: fixed;
+      top: 16px; right: 16px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #fff;
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1.15rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+      z-index: 100;
+    }
+    .btn-tema:hover { background: rgba(255,255,255,0.25); }
+
     .logo { text-align: center; margin-bottom: 36px; }
     .logo h1 {
       font-size: 2.4rem; font-weight: 900; color: #fff;
@@ -26,28 +63,34 @@
     .logo span { font-size: 1rem; color: #a0b4cc; letter-spacing: 3px; text-transform: uppercase; }
 
     .card {
-      background: #fff;
+      background: var(--card-bg);
       border-radius: 18px;
       padding: 40px 36px;
       width: 360px;
       max-width: 100%;
       box-shadow: 0 20px 60px rgba(0,0,0,0.4);
       border-top: 6px solid #e67e22;
+      transition: background 0.25s;
     }
     .card-icon { font-size: 3rem; text-align: center; margin-bottom: 12px; }
     .card h2 {
       font-size: 1.4rem; font-weight: 700; text-align: center;
-      margin-bottom: 24px; color: #1a1a2e;
+      margin-bottom: 24px; color: var(--card-text);
     }
 
     .form-group { margin-bottom: 16px; }
     .form-group label {
       display: block; font-size: 0.85rem; font-weight: 600;
-      color: #555; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;
+      color: var(--label-color); margin-bottom: 6px;
+      text-transform: uppercase; letter-spacing: 0.5px;
     }
     .form-group input {
-      width: 100%; padding: 12px 14px; border: 2px solid #e0e0e0;
-      border-radius: 10px; font-size: 1rem; transition: border-color 0.2s; outline: none;
+      width: 100%; padding: 12px 14px;
+      border: 2px solid var(--input-border);
+      border-radius: 10px; font-size: 1rem;
+      background: var(--input-bg); color: var(--input-text);
+      transition: border-color 0.2s, background 0.25s, color 0.25s;
+      outline: none;
     }
     .form-group input:focus { border-color: #e67e22; }
 
@@ -66,10 +109,13 @@
     }
     .msg.error   { background: #fdecea; color: #c0392b; display: block; }
     .msg.success { background: #e9f7ef; color: #1e8449; display: block; }
+    [data-theme="dark"] .msg.error   { background: #3b1a1a; color: #ff7b72; }
+    [data-theme="dark"] .msg.success { background: #1a3828; color: #56d364; }
 
     .link-ventas {
       display: block; text-align: center; margin-top: 20px;
-      color: #888; font-size: 0.85rem; text-decoration: none;
+      color: var(--link-color); font-size: 0.85rem; text-decoration: none;
+      transition: color 0.2s;
     }
     .link-ventas:hover { color: #e67e22; }
 
@@ -78,8 +124,17 @@
       letter-spacing: 2px; text-transform: uppercase;
     }
   </style>
+  <script>
+    (function(){
+      const t = localStorage.getItem('tema') || 'light';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
 </head>
 <body>
+
+  <button class="btn-tema" id="btn-tema" onclick="toggleTema()" title="Cambiar tema"></button>
+
   <div class="logo">
     <h1>🏪 Cantina</h1>
     <span>Panel de Producción</span>
@@ -106,47 +161,60 @@
   <footer>Cantina</footer>
 
   <script>
-    document.getElementById('formLogin').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const btn  = document.getElementById('btnLogin');
-      const msg  = document.getElementById('msg');
-      const usuario  = document.getElementById('usuario').value.trim();
-      const password = document.getElementById('password').value.trim();
+  // ═══ TEMA ══════════════════════════════════════════════════════════════════
+  document.getElementById('btn-tema').textContent =
+    document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
 
-      if (!usuario || !password) {
-        msg.textContent = 'Complete todos los campos';
-        msg.className = 'msg error';
-        return;
-      }
+  function toggleTema() {
+    const html  = document.documentElement;
+    const nuevo = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', nuevo);
+    localStorage.setItem('tema', nuevo);
+    document.getElementById('btn-tema').textContent = nuevo === 'dark' ? '☀️' : '🌙';
+  }
 
-      btn.disabled = true;
-      btn.textContent = 'Ingresando...';
-      msg.className = 'msg';
+  // ═══ LOGIN ═════════════════════════════════════════════════════════════════
+  document.getElementById('formLogin').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn      = document.getElementById('btnLogin');
+    const msg      = document.getElementById('msg');
+    const usuario  = document.getElementById('usuario').value.trim();
+    const password = document.getElementById('password').value.trim();
 
-      try {
-        const res = await fetch('{{ login_url }}', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({usuario, password})
-        });
-        const data = await res.json();
-        if (data.ok) {
-          msg.textContent = '✓ Acceso correcto. Cargando...';
-          msg.className = 'msg success';
-          setTimeout(() => { window.location.href = data.redirect; }, 600);
-        } else {
-          msg.textContent = data.error || 'Error de acceso';
-          msg.className = 'msg error';
-          btn.disabled = false;
-          btn.textContent = 'Ingresar';
-        }
-      } catch(err) {
-        msg.textContent = 'No hay conexión con el servidor';
+    if (!usuario || !password) {
+      msg.textContent = 'Complete todos los campos';
+      msg.className = 'msg error';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Ingresando...';
+    msg.className = 'msg';
+
+    try {
+      const res = await fetch('{{ login_url }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({usuario, password})
+      });
+      const data = await res.json();
+      if (data.ok) {
+        msg.textContent = '✓ Acceso correcto. Cargando...';
+        msg.className = 'msg success';
+        setTimeout(() => { window.location.href = data.redirect; }, 600);
+      } else {
+        msg.textContent = data.error || 'Error de acceso';
         msg.className = 'msg error';
         btn.disabled = false;
         btn.textContent = 'Ingresar';
       }
-    });
+    } catch(err) {
+      msg.textContent = 'No hay conexión con el servidor';
+      msg.className = 'msg error';
+      btn.disabled = false;
+      btn.textContent = 'Ingresar';
+    }
+  });
   </script>
 </body>
 </html>
