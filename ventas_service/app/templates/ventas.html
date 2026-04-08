@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ventas — Cantina</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ─────────────────────────────────────────── */
+    header {
+      background: linear-gradient(90deg, #1a1a2e, #0f3460);
+      color: #fff;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    header h1 { font-size: 1.3rem; font-weight: 800; }
+    header .user-info { font-size: 0.9rem; color: #a0b4cc; }
+    .btn-logout {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: background 0.2s;
+      text-decoration: none;
+    }
+    .btn-logout:hover { background: rgba(255,255,255,0.25); }
+
+    /* ── Tabs ────────────────────────────────────────────── */
+    .tabs {
+      display: flex;
+      background: #fff;
+      border-bottom: 3px solid #e0e0e0;
+      padding: 0 24px;
+    }
+    .tab-btn {
+      padding: 16px 28px;
+      font-size: 1rem;
+      font-weight: 700;
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: #666;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -3px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .tab-btn.active { color: #0f3460; border-bottom-color: #0f3460; }
+    .tab-btn:hover:not(.active) { color: #333; }
+
+    .tab-content { display: none; flex: 1; padding: 24px; }
+    .tab-content.active { display: flex; flex-direction: column; }
+
+    /* ── Balance Indicator ───────────────────────────────── */
+    #balance-bar {
+      background: #fff;
+      border-radius: 12px;
+      padding: 14px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      flex-wrap: wrap;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+    #balance-bar .bal-item { font-size: 0.9rem; }
+    #balance-bar .bal-item span { font-weight: 700; font-size: 1rem; }
+    #saldo-fichas  { color: #27ae60; }
+    #saldo-gs      { color: #0f3460; }
+
+    /* ── Emisión de Fichas ───────────────────────────────── */
+    .emision-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .emision-row {
+      background: #fff;
+      border-radius: 12px;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+    .denom-badge {
+      background: #0f3460;
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      white-space: nowrap;
+      min-width: 110px;
+      text-align: center;
+    }
+    .emision-row input[type=number] {
+      width: 80px;
+      padding: 10px 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-align: center;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .emision-row input[type=number]:focus { border-color: #0f3460; }
+    .emision-subtotal {
+      margin-left: auto;
+      font-size: 0.85rem;
+      color: #555;
+      white-space: nowrap;
+    }
+    .emision-subtotal strong { color: #27ae60; font-size: 1rem; }
+
+    #total-emision {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      margin-bottom: 16px;
+    }
+    #total-emision .total-text { font-size: 1.1rem; color: #333; }
+    #total-emision .total-num  { font-size: 1.5rem; font-weight: 900; color: #27ae60; }
+
+    .btn-confirmar {
+      background: #27ae60;
+      color: #fff;
+      border: none;
+      padding: 18px 36px;
+      border-radius: 12px;
+      font-size: 1.15rem;
+      font-weight: 800;
+      cursor: pointer;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: background 0.2s, transform 0.1s;
+      width: 100%;
+    }
+    .btn-confirmar:hover:not(:disabled) { background: #219a52; }
+    .btn-confirmar:active:not(:disabled) { transform: scale(0.98); }
+    .btn-confirmar:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* ── Productos + Carrito ────────────────────────────── */
+    .ventas-layout {
+      display: flex;
+      gap: 20px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .productos-panel {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .productos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+    }
+    .producto-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px 12px;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      transition: transform 0.15s, box-shadow 0.15s;
+      border: 2px solid transparent;
+      user-select: none;
+    }
+    .producto-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.14);
+      border-color: #27ae60;
+    }
+    .producto-card:active { transform: scale(0.97); }
+    .producto-card.sin-stock { opacity: 0.45; pointer-events: none; }
+    .prod-nombre { font-size: 0.9rem; font-weight: 700; color: #1a1a2e; margin-bottom: 8px; }
+    .prod-precio { font-size: 1.2rem; font-weight: 900; color: #27ae60; }
+    .prod-fichas { font-size: 0.72rem; color: #888; }
+    .prod-stock  { font-size: 0.75rem; color: #999; margin-top: 4px; }
+
+    /* ── Carrito ─────────────────────────────────────────── */
+    .carrito-panel {
+      width: 320px;
+      min-width: 280px;
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+    }
+    .carrito-panel h3 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #1a1a2e;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #f0f2f5;
+    }
+    #lista-carrito { flex: 1; overflow-y: auto; min-height: 120px; max-height: 340px; }
+
+    .carrito-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 0;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .ci-nombre  { flex: 1; font-size: 0.85rem; font-weight: 600; color: #333; }
+    .ci-qty-btn {
+      width: 28px; height: 28px;
+      border: none; border-radius: 6px;
+      background: #f0f2f5; cursor: pointer; font-size: 1rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+    }
+    .ci-qty-btn:hover { background: #dde0e8; }
+    .ci-qty  { font-size: 0.95rem; font-weight: 700; min-width: 24px; text-align: center; }
+    .ci-sub  { font-size: 0.85rem; font-weight: 700; color: #0f3460; min-width: 60px; text-align: right; }
+    .ci-del  {
+      background: none; border: none; color: #c0392b; cursor: pointer;
+      font-size: 1.1rem; padding: 2px 4px;
+    }
+
+    #carrito-vacio {
+      text-align: center;
+      color: #aaa;
+      padding: 32px 0;
+      font-size: 0.95rem;
+    }
+
+    .carrito-total {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 2px solid #f0f2f5;
+    }
+    .ct-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
+      color: #555;
+    }
+    .ct-row strong { color: #1a1a2e; }
+    .ct-total {
+      display: flex;
+      justify-content: space-between;
+      margin: 10px 0;
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: #1a1a2e;
+    }
+    .ct-total .total-gs { color: #27ae60; }
+
+    .btn-pagar {
+      width: 100%;
+      padding: 16px;
+      background: #e74c3c;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 10px;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn-pagar:hover:not(:disabled) { background: #c0392b; }
+    .btn-pagar:active:not(:disabled) { transform: scale(0.98); }
+    .btn-pagar:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* ── Alert Toast ─────────────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: 30px; left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #1a1a2e;
+      color: #fff;
+      padding: 16px 32px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      z-index: 999;
+      transition: transform 0.35s cubic-bezier(.4,0,.2,1);
+      max-width: 90vw;
+      text-align: center;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+    #toast.success { background: #27ae60; }
+    #toast.error   { background: #e74c3c; }
+
+    @media (max-width: 900px) {
+      .ventas-layout { flex-direction: column; }
+      .carrito-panel { width: 100%; min-width: unset; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🏪 Cantina — Ventas</h1>
+    <span class="user-info">👤 {{ usuario }}</span>
+    <a href="/logout" class="btn-logout">Cerrar Sesión</a>
+  </header>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="cambiarTab('emision', this)">🪙 Emitir Fichas</button>
+    <button class="tab-btn"       onclick="cambiarTab('venta',   this)">🛒 Vender Productos</button>
+  </div>
+
+  <!-- ══ TAB EMISIÓN ════════════════════════════════════════════════ -->
+  <div id="tab-emision" class="tab-content active">
+
+    <div id="balance-bar">
+      <div class="bal-item">💰 Saldo fichas: <span id="saldo-fichas">—</span></div>
+      <div class="bal-item">💵 En Guaraníes: <span id="saldo-gs">—</span></div>
+      <div class="bal-item" id="bal-emitidas">📤 Emitidas: <span>—</span></div>
+      <div class="bal-item" id="bal-usadas">📥 Usadas: <span>—</span></div>
+    </div>
+
+    <div class="emision-grid" id="emision-grid">
+      <!-- Generado por JS -->
+    </div>
+
+    <div id="total-emision">
+      <div>
+        <div class="total-text">Total a ingresar en caja</div>
+        <div class="total-num" id="total-gs-emision">Gs. 0</div>
+      </div>
+      <div>
+        <div class="total-text">Fichas a entregar</div>
+        <div class="total-num" id="total-fichas-emision" style="color:#0f3460">0 fichas</div>
+      </div>
+    </div>
+
+    <button class="btn-confirmar" id="btn-confirmar-emision" onclick="confirmarEmision()">
+      ✅ CONFIRMAR EMISIÓN
+    </button>
+
+  </div>
+
+  <!-- ══ TAB VENTAS ═════════════════════════════════════════════════ -->
+  <div id="tab-venta" class="tab-content">
+    <div class="ventas-layout">
+
+      <div class="productos-panel">
+        <div class="productos-grid" id="productos-grid">
+          <!-- Generado por JS -->
+        </div>
+      </div>
+
+      <div class="carrito-panel">
+        <h3>🛒 Carrito</h3>
+        <div id="lista-carrito">
+          <div id="carrito-vacio">El carrito está vacío</div>
+        </div>
+        <div class="carrito-total">
+          <div class="ct-row"><span>Total fichas:</span> <strong id="ct-fichas">0</strong></div>
+          <div class="ct-total">
+            <span>TOTAL</span>
+            <span class="total-gs" id="ct-guaranies">Gs. 0</span>
+          </div>
+          <button class="btn-pagar" id="btn-pagar" onclick="procesarPago()">💳 PAGAR</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast"></div>
+
+  <script>
+  // ═══ UTILIDADES ═══════════════════════════════════════════════════════════
+  function fmt(n) {
+    return 'Gs. ' + Number(n).toLocaleString('es-PY');
+  }
+
+  let toastTimer;
+  function toast(msg, tipo = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'show ' + tipo;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.className = ''; }, 3500);
+  }
+
+  // ═══ TABS ══════════════════════════════════════════════════════════════════
+  function cambiarTab(nombre, btn) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + nombre).classList.add('active');
+    btn.classList.add('active');
+    if (nombre === 'venta' && productos.length === 0) cargarProductos();
+    if (nombre === 'emision') cargarBalance();
+  }
+
+  // ═══ BALANCE ═══════════════════════════════════════════════════════════════
+  async function cargarBalance() {
+    try {
+      const res = await fetch('/api/balance');
+      if (!res.ok) return;
+      const d = await res.json();
+      document.getElementById('saldo-fichas').textContent = d.saldo_fichas + ' fichas';
+      document.getElementById('saldo-gs').textContent     = fmt(d.saldo_guaranies);
+      document.getElementById('bal-emitidas').querySelector('span').textContent = d.fichas_emitidas;
+      document.getElementById('bal-usadas').querySelector('span').textContent   = d.fichas_usadas;
+    } catch(e) {}
+  }
+
+  // ═══ DENOMINACIONES + EMISIÓN ═════════════════════════════════════════════
+  const DENOMINACIONES = [1000, 5000, 10000, 15000, 20000];
+
+  function buildEmisionGrid() {
+    const grid = document.getElementById('emision-grid');
+    grid.innerHTML = '';
+    DENOMINACIONES.forEach(d => {
+      const row = document.createElement('div');
+      row.className = 'emision-row';
+      row.innerHTML = `
+        <div class="denom-badge">💵 ${d.toLocaleString('es-PY')} Gs.</div>
+        <input type="number" min="0" max="999" value="0"
+               id="qty-${d}" onchange="recalcularEmision()"
+               oninput="recalcularEmision()" placeholder="0"/>
+        <div class="emision-subtotal">
+          <div>subtotal:</div>
+          <strong id="sub-${d}">Gs. 0</strong>
+        </div>`;
+      grid.appendChild(row);
+    });
+  }
+
+  function recalcularEmision() {
+    let totalGs = 0, totalFichas = 0;
+    DENOMINACIONES.forEach(d => {
+      const qty = parseInt(document.getElementById('qty-' + d).value) || 0;
+      const sub = d * qty;
+      document.getElementById('sub-' + d).textContent = 'Gs. ' + sub.toLocaleString('es-PY');
+      totalGs     += sub;
+      totalFichas += sub / 1000;
+    });
+    document.getElementById('total-gs-emision').textContent     = fmt(totalGs);
+    document.getElementById('total-fichas-emision').textContent = totalFichas + ' fichas';
+  }
+
+  async function confirmarEmision() {
+    const btn = document.getElementById('btn-confirmar-emision');
+    const emisiones = DENOMINACIONES
+      .map(d => ({ denominacion: d, cantidad: parseInt(document.getElementById('qty-' + d).value) || 0 }))
+      .filter(e => e.cantidad > 0);
+
+    if (emisiones.length === 0) {
+      toast('Ingrese al menos una cantidad', 'error');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = '⏳ Procesando...';
+
+    try {
+      const res = await fetch('/api/emitir', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({emisiones})
+      });
+      const data = await res.json();
+      if (data.ok) {
+        toast(`✓ ¡Emisión exitosa! ${data.total_fichas} fichas — ${fmt(data.total_guaranies)}`, 'success');
+        DENOMINACIONES.forEach(d => {
+          document.getElementById('qty-' + d).value = 0;
+          document.getElementById('sub-' + d).textContent = 'Gs. 0';
+        });
+        recalcularEmision();
+        cargarBalance();
+      } else {
+        toast(data.error || 'Error al emitir fichas', 'error');
+      }
+    } catch(e) {
+      toast('No hay conexión con el servidor', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '✅ CONFIRMAR EMISIÓN';
+    }
+  }
+
+  // ═══ PRODUCTOS ════════════════════════════════════════════════════════════
+  let productos = [];
+
+  async function cargarProductos() {
+    try {
+      const res = await fetch('/api/productos');
+      if (!res.ok) throw new Error();
+      productos = await res.json();
+      renderProductos();
+    } catch(e) {
+      document.getElementById('productos-grid').innerHTML =
+        '<p style="color:#e74c3c;padding:20px">No se pudieron cargar los productos</p>';
+    }
+  }
+
+  function renderProductos() {
+    const grid = document.getElementById('productos-grid');
+    grid.innerHTML = '';
+    productos.forEach(p => {
+      const div = document.createElement('div');
+      div.className = 'producto-card' + (p.stock <= 0 ? ' sin-stock' : '');
+      div.onclick = () => agregarAlCarrito(p);
+      div.innerHTML = `
+        <div class="prod-nombre">${p.nombre}</div>
+        <div class="prod-precio">${p.precio}</div>
+        <div class="prod-fichas">fichas</div>
+        <div class="prod-stock">${p.stock > 0 ? 'Stock: ' + p.stock : '⚠️ Sin stock'}</div>`;
+      grid.appendChild(div);
+    });
+  }
+
+  // ═══ CARRITO ══════════════════════════════════════════════════════════════
+  let carrito = {};
+
+  function agregarAlCarrito(p) {
+    if (p.stock <= 0) return;
+    if (carrito[p._id]) {
+      if (carrito[p._id].cantidad >= p.stock) {
+        toast(`Solo hay ${p.stock} en stock`, 'error');
+        return;
+      }
+      carrito[p._id].cantidad++;
+    } else {
+      carrito[p._id] = {
+        producto_id:  p._id,
+        nombre:       p.nombre,
+        precio_fichas: p.precio,
+        cantidad:     1,
+        stock:        p.stock,
+      };
+    }
+    renderCarrito();
+  }
+
+  function cambiarCantidad(id, delta) {
+    if (!carrito[id]) return;
+    carrito[id].cantidad += delta;
+    if (carrito[id].cantidad <= 0) {
+      delete carrito[id];
+    }
+    renderCarrito();
+  }
+
+  function quitarItem(id) {
+    delete carrito[id];
+    renderCarrito();
+  }
+
+  function renderCarrito() {
+    const lista = document.getElementById('lista-carrito');
+    const items = Object.values(carrito);
+    document.getElementById('carrito-vacio').style.display = items.length === 0 ? '' : 'none';
+
+    // Limpiar items anteriores (mantener el div vacío)
+    lista.querySelectorAll('.carrito-item').forEach(el => el.remove());
+
+    let totalFichas = 0;
+    items.forEach(it => {
+      const sub = it.precio_fichas * it.cantidad;
+      totalFichas += sub;
+      const div = document.createElement('div');
+      div.className = 'carrito-item';
+      div.innerHTML = `
+        <div class="ci-nombre">${it.nombre}</div>
+        <button class="ci-qty-btn" onclick="cambiarCantidad('${it.producto_id}', -1)">−</button>
+        <div class="ci-qty">${it.cantidad}</div>
+        <button class="ci-qty-btn" onclick="cambiarCantidad('${it.producto_id}', 1)">+</button>
+        <div class="ci-sub">${sub} fic.</div>
+        <button class="ci-del" onclick="quitarItem('${it.producto_id}')">🗑</button>`;
+      lista.appendChild(div);
+    });
+
+    document.getElementById('ct-fichas').textContent   = totalFichas + ' fichas';
+    document.getElementById('ct-guaranies').textContent = fmt(totalFichas * 1000);
+    document.getElementById('btn-pagar').disabled = items.length === 0;
+  }
+
+  async function procesarPago() {
+    const btn = document.getElementById('btn-pagar');
+    const items = Object.values(carrito);
+    if (items.length === 0) { toast('El carrito está vacío', 'error'); return; }
+
+    btn.disabled = true;
+    btn.textContent = '⏳ Procesando...';
+
+    try {
+      const payload = {
+        items: items.map(it => ({
+          producto_id:  it.producto_id,
+          nombre:       it.nombre,
+          cantidad:     it.cantidad,
+          precio_fichas: it.precio_fichas,
+        }))
+      };
+      const res = await fetch('/api/venta', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.ok) {
+        toast(`✓ ¡Venta registrada! ${data.total_fichas} fichas — ${fmt(data.total_guaranies)}`, 'success');
+        carrito = {};
+        renderCarrito();
+        cargarProductos(); // refresca stocks
+      } else {
+        toast(data.error || 'Error al procesar la venta', 'error');
+      }
+    } catch(e) {
+      toast('No hay conexión con el servidor', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '💳 PAGAR';
+    }
+  }
+
+  // ═══ INIT ══════════════════════════════════════════════════════════════════
+  buildEmisionGrid();
+  recalcularEmision();
+  cargarBalance();
+  </script>
+</body>
+</html>

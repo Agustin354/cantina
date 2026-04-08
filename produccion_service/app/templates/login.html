@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cantina — Producción</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      padding: 20px;
+    }
+
+    .logo { text-align: center; margin-bottom: 36px; }
+    .logo h1 {
+      font-size: 2.4rem; font-weight: 900; color: #fff;
+      letter-spacing: 2px; text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+    }
+    .logo span { font-size: 1rem; color: #a0b4cc; letter-spacing: 3px; text-transform: uppercase; }
+
+    .card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 40px 36px;
+      width: 360px;
+      max-width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      border-top: 6px solid #e67e22;
+    }
+    .card-icon { font-size: 3rem; text-align: center; margin-bottom: 12px; }
+    .card h2 {
+      font-size: 1.4rem; font-weight: 700; text-align: center;
+      margin-bottom: 24px; color: #1a1a2e;
+    }
+
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block; font-size: 0.85rem; font-weight: 600;
+      color: #555; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .form-group input {
+      width: 100%; padding: 12px 14px; border: 2px solid #e0e0e0;
+      border-radius: 10px; font-size: 1rem; transition: border-color 0.2s; outline: none;
+    }
+    .form-group input:focus { border-color: #e67e22; }
+
+    .btn {
+      width: 100%; padding: 14px; border: none; border-radius: 10px;
+      font-size: 1.05rem; font-weight: 700; letter-spacing: 1px;
+      cursor: pointer; margin-top: 8px; transition: opacity 0.2s;
+      text-transform: uppercase; background: #e67e22; color: #fff;
+    }
+    .btn:hover:not(:disabled) { background: #ca6f1e; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .msg {
+      margin-top: 12px; padding: 10px 14px; border-radius: 8px;
+      font-size: 0.9rem; font-weight: 600; text-align: center; display: none;
+    }
+    .msg.error   { background: #fdecea; color: #c0392b; display: block; }
+    .msg.success { background: #e9f7ef; color: #1e8449; display: block; }
+
+    .link-ventas {
+      display: block; text-align: center; margin-top: 20px;
+      color: #888; font-size: 0.85rem; text-decoration: none;
+    }
+    .link-ventas:hover { color: #e67e22; }
+
+    footer {
+      margin-top: 40px; color: #7f8c9a; font-size: 0.85rem;
+      letter-spacing: 2px; text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <div class="logo">
+    <h1>🏪 Cantina</h1>
+    <span>Panel de Producción</span>
+  </div>
+
+  <div class="card">
+    <div class="card-icon">📊</div>
+    <h2>Panel de Producción</h2>
+    <form id="formLogin" autocomplete="off">
+      <div class="form-group">
+        <label>Usuario</label>
+        <input type="text" id="usuario" placeholder="Producción" autocomplete="username"/>
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" id="password" placeholder="••••••" autocomplete="current-password"/>
+      </div>
+      <button type="submit" class="btn" id="btnLogin">Ingresar</button>
+      <div class="msg" id="msg"></div>
+    </form>
+    <a href="{{ ventas_url }}" class="link-ventas">← Ir al panel de Ventas</a>
+  </div>
+
+  <footer>Cantina</footer>
+
+  <script>
+    document.getElementById('formLogin').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn  = document.getElementById('btnLogin');
+      const msg  = document.getElementById('msg');
+      const usuario  = document.getElementById('usuario').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      if (!usuario || !password) {
+        msg.textContent = 'Complete todos los campos';
+        msg.className = 'msg error';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Ingresando...';
+      msg.className = 'msg';
+
+      try {
+        const res = await fetch('{{ login_url }}', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({usuario, password})
+        });
+        const data = await res.json();
+        if (data.ok) {
+          msg.textContent = '✓ Acceso correcto. Cargando...';
+          msg.className = 'msg success';
+          setTimeout(() => { window.location.href = data.redirect; }, 600);
+        } else {
+          msg.textContent = data.error || 'Error de acceso';
+          msg.className = 'msg error';
+          btn.disabled = false;
+          btn.textContent = 'Ingresar';
+        }
+      } catch(err) {
+        msg.textContent = 'No hay conexión con el servidor';
+        msg.className = 'msg error';
+        btn.disabled = false;
+        btn.textContent = 'Ingresar';
+      }
+    });
+  </script>
+</body>
+</html>

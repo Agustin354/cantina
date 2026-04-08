@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Producción — Cantina</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ─────────────────────────────────────────── */
+    header {
+      background: linear-gradient(90deg, #1a1a2e, #0f3460);
+      color: #fff;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    header h1  { font-size: 1.3rem; font-weight: 800; }
+    .user-info { font-size: 0.9rem; color: #a0b4cc; }
+    .btn-logout {
+      background: rgba(255,255,255,0.15);
+      color: #fff; border: 1px solid rgba(255,255,255,0.3);
+      padding: 8px 16px; border-radius: 8px; cursor: pointer;
+      font-size: 0.85rem; font-weight: 600; text-decoration: none;
+      transition: background 0.2s;
+    }
+    .btn-logout:hover { background: rgba(255,255,255,0.25); }
+
+    /* ── Main ────────────────────────────────────────────── */
+    main { padding: 24px; flex: 1; }
+
+    /* ── Stats Grid ──────────────────────────────────────── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .stat-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      text-align: center;
+      border-top: 4px solid #0f3460;
+    }
+    .stat-card.verde  { border-top-color: #27ae60; }
+    .stat-card.naranja { border-top-color: #e67e22; }
+    .stat-card.rojo   { border-top-color: #e74c3c; }
+    .stat-card.azul   { border-top-color: #2980b9; }
+
+    .stat-icon  { font-size: 1.8rem; margin-bottom: 8px; }
+    .stat-label { font-size: 0.78rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .stat-value { font-size: 1.5rem; font-weight: 900; color: #1a1a2e; }
+    .stat-sub   { font-size: 0.8rem; color: #999; margin-top: 4px; }
+
+    /* ── Estado ──────────────────────────────────────────── */
+    #estado-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 20px 28px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    #estado-icon  { font-size: 2.5rem; }
+    #estado-texto { flex: 1; }
+    #estado-titulo { font-size: 1.2rem; font-weight: 800; }
+    #estado-desc   { font-size: 0.9rem; color: #666; margin-top: 4px; }
+
+    /* ── Sección ─────────────────────────────────────────── */
+    .seccion {
+      background: #fff;
+      border-radius: 14px;
+      padding: 20px 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      margin-bottom: 24px;
+    }
+    .seccion h2 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #1a1a2e;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #f0f2f5;
+    }
+
+    /* ── Tablas ──────────────────────────────────────────── */
+    .tabla-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    th {
+      background: #0f3460;
+      color: #fff;
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #f0f2f5;
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8f9fa; }
+    .num { text-align: right; font-weight: 700; }
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .badge-verde  { background: #e9f7ef; color: #1e8449; }
+    .badge-naranja { background: #fef5e7; color: #ca6f1e; }
+
+    /* ── Botones ─────────────────────────────────────────── */
+    .btn-reporte {
+      background: #e67e22;
+      color: #fff; border: none;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn-reporte:hover:not(:disabled) { background: #ca6f1e; }
+    .btn-reporte:active:not(:disabled) { transform: scale(0.98); }
+    .btn-reporte:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .btn-descargar {
+      background: #27ae60;
+      color: #fff; border: none;
+      padding: 7px 16px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: background 0.2s;
+    }
+    .btn-descargar:hover { background: #219a52; }
+
+    /* ── Reportes lista ──────────────────────────────────── */
+    .reporte-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f2f5;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .reporte-item:last-child { border-bottom: none; }
+    .reporte-nombre { font-size: 0.88rem; font-weight: 600; color: #333; }
+    #no-reportes { color: #aaa; padding: 16px 0; font-size: 0.9rem; }
+
+    /* ── Toast ───────────────────────────────────────────── */
+    #toast {
+      position: fixed; bottom: 30px; left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #1a1a2e; color: #fff;
+      padding: 16px 32px; border-radius: 12px;
+      font-size: 1rem; font-weight: 600;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      z-index: 999;
+      transition: transform 0.35s cubic-bezier(.4,0,.2,1);
+      max-width: 90vw; text-align: center;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+    #toast.success { background: #27ae60; }
+    #toast.error   { background: #e74c3c; }
+
+    @media (max-width: 640px) {
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      header h1   { font-size: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🏪 Cantina — Producción</h1>
+    <span class="user-info">👤 {{ usuario }}</span>
+    <a href="{{ logout_url }}" class="btn-logout">Cerrar Sesión</a>
+  </header>
+
+  <main>
+
+    <!-- ══ TARJETAS ESTADÍSTICAS ════════════════════════════════════ -->
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card azul">
+        <div class="stat-icon">📤</div>
+        <div class="stat-label">Fichas Emitidas</div>
+        <div class="stat-value" id="s-emitidas">—</div>
+        <div class="stat-sub" id="s-emitidas-gs">—</div>
+      </div>
+      <div class="stat-card naranja">
+        <div class="stat-icon">🛒</div>
+        <div class="stat-label">Fichas Usadas</div>
+        <div class="stat-value" id="s-usadas">—</div>
+        <div class="stat-sub" id="s-usadas-gs">—</div>
+      </div>
+      <div class="stat-card verde">
+        <div class="stat-icon">💰</div>
+        <div class="stat-label">Saldo Fichas</div>
+        <div class="stat-value" id="s-saldo">—</div>
+        <div class="stat-sub" id="s-saldo-gs">—</div>
+      </div>
+      <div class="stat-card azul">
+        <div class="stat-icon">📅</div>
+        <div class="stat-label">Ventas Hoy</div>
+        <div class="stat-value" id="s-ventas-hoy">—</div>
+        <div class="stat-sub" id="s-ventas-hoy-gs">—</div>
+      </div>
+      <div class="stat-card verde">
+        <div class="stat-icon">💵</div>
+        <div class="stat-label">Total Ingresado</div>
+        <div class="stat-value" id="s-ingresado">—</div>
+        <div class="stat-sub">dinero real</div>
+      </div>
+      <div class="stat-card rojo">
+        <div class="stat-icon">🧾</div>
+        <div class="stat-label">Total Gastado</div>
+        <div class="stat-value" id="s-gastado">—</div>
+        <div class="stat-sub">en productos</div>
+      </div>
+    </div>
+
+    <!-- ══ ESTADO DE BALANCE ════════════════════════════════════════ -->
+    <div id="estado-card">
+      <div id="estado-icon">⏳</div>
+      <div id="estado-texto">
+        <div id="estado-titulo">Cargando balance...</div>
+        <div id="estado-desc">Consultando base de datos</div>
+      </div>
+    </div>
+
+    <!-- ══ TOP PRODUCTOS ════════════════════════════════════════════ -->
+    <div class="seccion">
+      <h2>🏆 Top 5 Productos Más Vendidos</h2>
+      <div class="tabla-wrap">
+        <table id="tabla-top">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Producto</th>
+              <th class="num">Cantidad Vendida</th>
+              <th class="num">Total Fichas</th>
+              <th class="num">Total Guaraníes</th>
+            </tr>
+          </thead>
+          <tbody id="body-top">
+            <tr><td colspan="5" style="text-align:center;color:#aaa;padding:20px">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ VENTAS DEL DÍA ═══════════════════════════════════════════ -->
+    <div class="seccion">
+      <h2>📋 Ventas del Día</h2>
+      <div class="tabla-wrap">
+        <table id="tabla-ventas">
+          <thead>
+            <tr>
+              <th>Hora</th>
+              <th>Productos</th>
+              <th class="num">Total Fichas</th>
+              <th class="num">Total Guaraníes</th>
+            </tr>
+          </thead>
+          <tbody id="body-ventas">
+            <tr><td colspan="4" style="text-align:center;color:#aaa;padding:20px">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ REPORTES ═════════════════════════════════════════════════ -->
+    <div class="seccion">
+      <h2>📄 Reportes Excel</h2>
+      <button class="btn-reporte" id="btn-generar" onclick="generarReporte()">
+        🔄 Generar Reporte Manual
+      </button>
+      <div style="margin-top:20px" id="lista-reportes">
+        <div id="no-reportes" style="color:#aaa;padding:16px 0">Cargando reportes...</div>
+      </div>
+    </div>
+
+  </main>
+
+  <div id="toast"></div>
+
+  <script>
+  const BASE_URL = '{{ base_url }}';  // ej. '/produccion' o ''
+
+  function fmt(n) {
+    return 'Gs. ' + Number(n).toLocaleString('es-PY');
+  }
+
+  let toastTimer;
+  function toast(msg, tipo = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'show ' + tipo;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.className = ''; }, 3500);
+  }
+
+  // ═══ STATS ════════════════════════════════════════════════════════════════
+  async function cargarStats() {
+    try {
+      const res = await fetch(BASE_URL + '/api/stats');
+      if (!res.ok) throw new Error();
+      const d = await res.json();
+
+      document.getElementById('s-emitidas').textContent    = d.fichas_emitidas;
+      document.getElementById('s-emitidas-gs').textContent = fmt(d.fichas_emitidas * 1000);
+      document.getElementById('s-usadas').textContent      = d.fichas_usadas;
+      document.getElementById('s-usadas-gs').textContent   = fmt(d.fichas_usadas * 1000);
+      document.getElementById('s-saldo').textContent       = d.saldo_fichas;
+      document.getElementById('s-saldo-gs').textContent    = fmt(d.saldo_guaranies);
+      document.getElementById('s-ventas-hoy').textContent  = d.ventas_hoy_cantidad + ' ventas';
+      document.getElementById('s-ventas-hoy-gs').textContent = fmt(d.ventas_hoy_guaranies);
+      document.getElementById('s-ingresado').textContent   = fmt(d.total_ingresado);
+      document.getElementById('s-gastado').textContent     = fmt(d.total_gastado);
+
+      // Estado de balance
+      const icon   = document.getElementById('estado-icon');
+      const titulo = document.getElementById('estado-titulo');
+      const desc   = document.getElementById('estado-desc');
+      const card   = document.getElementById('estado-card');
+      const dif    = d.diferencia;
+
+      if (d.consistente) {
+        icon.textContent   = '🟢';
+        titulo.textContent = 'Sistema CONSISTENTE';
+        titulo.style.color = '#1e8449';
+        desc.textContent   = 'El dinero en caja coincide con las fichas emitidas. Todo está bien.';
+        card.style.borderLeft = '6px solid #27ae60';
+      } else {
+        icon.textContent   = '🔴';
+        titulo.textContent = 'HAY UNA DIFERENCIA';
+        titulo.style.color = '#c0392b';
+        desc.textContent   = `Diferencia de ${fmt(Math.abs(dif))}. ${dif > 0 ? 'Sobra dinero en caja.' : 'Falta dinero en caja.'}`;
+        card.style.borderLeft = '6px solid #e74c3c';
+      }
+
+      // Top productos
+      const bodyTop = document.getElementById('body-top');
+      if (d.top_productos && d.top_productos.length > 0) {
+        bodyTop.innerHTML = d.top_productos.map((p, i) => `
+          <tr>
+            <td><strong>${i + 1}</strong></td>
+            <td>${p._id}</td>
+            <td class="num">${p.total_cantidad}</td>
+            <td class="num">${p.total_fichas}</td>
+            <td class="num">${fmt(p.total_fichas * 1000)}</td>
+          </tr>`).join('');
+      } else {
+        bodyTop.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#aaa;padding:20px">Sin ventas aún</td></tr>';
+      }
+
+      // Ventas del día
+      const bodyVentas = document.getElementById('body-ventas');
+      if (d.ventas_del_dia && d.ventas_del_dia.length > 0) {
+        bodyVentas.innerHTML = d.ventas_del_dia.map(v => {
+          const hora = v.timestamp
+            ? new Date(v.timestamp).toLocaleTimeString('es-PY', {hour:'2-digit', minute:'2-digit'})
+            : '—';
+          const items = (v.items || []).map(it => `${it.nombre} ×${it.cantidad}`).join(', ');
+          return `
+            <tr>
+              <td>${hora}</td>
+              <td style="max-width:300px;word-break:break-word">${items}</td>
+              <td class="num">${v.total_fichas}</td>
+              <td class="num">${fmt(v.total_fichas * 1000)}</td>
+            </tr>`;
+        }).join('');
+      } else {
+        bodyVentas.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#aaa;padding:20px">Sin ventas hoy</td></tr>';
+      }
+
+    } catch(e) {
+      document.getElementById('estado-titulo').textContent = 'No se pudieron cargar las estadísticas';
+      document.getElementById('estado-desc').textContent   = 'Verifique la conexión al servidor';
+    }
+  }
+
+  // ═══ REPORTES ═════════════════════════════════════════════════════════════
+  async function cargarReportes() {
+    const contenedor = document.getElementById('lista-reportes');
+    try {
+      const res = await fetch(BASE_URL + '/api/reportes');
+      if (!res.ok) throw new Error();
+      const archivos = await res.json();
+
+      if (archivos.length === 0) {
+        contenedor.innerHTML = '<div id="no-reportes">No hay reportes generados aún.</div>';
+        return;
+      }
+
+      contenedor.innerHTML = archivos.map(nombre => `
+        <div class="reporte-item">
+          <span class="reporte-nombre">📊 ${nombre}</span>
+          <a href="${BASE_URL}/api/reportes/download/${encodeURIComponent(nombre)}"
+             class="btn-descargar" download>
+            ⬇️ Descargar
+          </a>
+        </div>`).join('');
+    } catch(e) {
+      contenedor.innerHTML = '<div style="color:#e74c3c">No se pudieron cargar los reportes</div>';
+    }
+  }
+
+  async function generarReporte() {
+    const btn = document.getElementById('btn-generar');
+    btn.disabled = true;
+    btn.textContent = '⏳ Generando...';
+
+    try {
+      const res = await fetch(BASE_URL + '/api/reportes/generar', {method: 'POST'});
+      const data = await res.json();
+      if (data.ok) {
+        toast(`✓ Reporte generado: ${data.nombre}`, 'success');
+        cargarReportes();
+      } else {
+        toast(data.error || 'Error al generar el reporte', 'error');
+      }
+    } catch(e) {
+      toast('No hay conexión con el servidor', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '🔄 Generar Reporte Manual';
+    }
+  }
+
+  // ═══ INIT ══════════════════════════════════════════════════════════════════
+  cargarStats();
+  cargarReportes();
+
+  // Auto-refresh cada 60 segundos
+  setInterval(cargarStats, 60000);
+  </script>
+</body>
+</html>

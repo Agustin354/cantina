@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CANTINA — Ingreso</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      padding: 20px;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    .logo h1 {
+      font-size: 2.4rem;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: 2px;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+    }
+    .logo span {
+      font-size: 1rem;
+      color: #a0b4cc;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .cards {
+      display: flex;
+      gap: 28px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 36px 32px;
+      width: 320px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      cursor: default;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 30px 70px rgba(0,0,0,0.5);
+    }
+    .card:active { transform: scale(0.98); }
+
+    .card-ventas  { border-top: 6px solid #27ae60; }
+    .card-produccion { border-top: 6px solid #e67e22; }
+
+    .card-icon {
+      font-size: 3rem;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .card h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 24px;
+      color: #1a1a2e;
+    }
+
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    .form-group input:focus { border-color: #0f3460; }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: opacity 0.2s, transform 0.1s;
+      text-transform: uppercase;
+    }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-ventas     { background: #27ae60; color: #fff; }
+    .btn-ventas:hover:not(:disabled) { background: #219a52; }
+    .btn-produccion { background: #e67e22; color: #fff; }
+    .btn-produccion:hover:not(:disabled) { background: #ca6f1e; }
+
+    .msg {
+      margin-top: 12px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-align: center;
+      display: none;
+    }
+    .msg.error   { background: #fdecea; color: #c0392b; display: block; }
+    .msg.success { background: #e9f7ef; color: #1e8449; display: block; }
+
+    footer {
+      margin-top: 40px;
+      color: #7f8c9a;
+      font-size: 0.85rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 700px) {
+      .cards { flex-direction: column; align-items: center; }
+      .card  { width: 100%; max-width: 380px; }
+      .logo h1 { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="logo">
+    <h1>🏪 Cantina</h1>
+    <span>Sistema de Cantina</span>
+  </div>
+
+  <div class="cards">
+
+    <!-- ── CARD VENTAS ─────────────────────────────────── -->
+    <div class="card card-ventas">
+      <div class="card-icon">🛒</div>
+      <h2>Panel de Ventas</h2>
+      <form id="formVentas" autocomplete="off">
+        <div class="form-group">
+          <label>Usuario</label>
+          <input type="text" id="vUsuario" placeholder="Ventas" autocomplete="username"/>
+        </div>
+        <div class="form-group">
+          <label>Contraseña</label>
+          <input type="password" id="vPassword" placeholder="••••••" autocomplete="current-password"/>
+        </div>
+        <button type="submit" class="btn btn-ventas" id="btnVentas">Ingresar</button>
+        <div class="msg" id="msgVentas"></div>
+      </form>
+    </div>
+
+    <!-- ── CARD PRODUCCIÓN ─────────────────────────────── -->
+    <div class="card card-produccion">
+      <div class="card-icon">📊</div>
+      <h2>Panel de Producción</h2>
+      <form id="formProduccion" autocomplete="off">
+        <div class="form-group">
+          <label>Usuario</label>
+          <input type="text" id="pUsuario" placeholder="Producción" autocomplete="username"/>
+        </div>
+        <div class="form-group">
+          <label>Contraseña</label>
+          <input type="password" id="pPassword" placeholder="••••••" autocomplete="current-password"/>
+        </div>
+        <button type="submit" class="btn btn-produccion" id="btnProduccion">Ingresar</button>
+        <div class="msg" id="msgProduccion"></div>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>CANTINA</footer>
+
+  <script>
+    function mostrarMsg(el, texto, tipo) {
+      el.textContent = texto;
+      el.className = 'msg ' + tipo;
+    }
+
+    // ── Login Ventas ────────────────────────────────────────────
+    document.getElementById('formVentas').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnVentas');
+      const msg = document.getElementById('msgVentas');
+      const usuario  = document.getElementById('vUsuario').value.trim();
+      const password = document.getElementById('vPassword').value.trim();
+
+      if (!usuario || !password) {
+        mostrarMsg(msg, 'Complete todos los campos', 'error');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Ingresando...';
+      msg.className = 'msg';
+
+      try {
+        const res = await fetch('/login/ventas', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({usuario, password})
+        });
+        const data = await res.json();
+        if (data.ok) {
+          mostrarMsg(msg, '✓ Acceso correcto. Cargando...', 'success');
+          setTimeout(() => { window.location.href = data.redirect; }, 600);
+        } else {
+          mostrarMsg(msg, data.error || 'Error de acceso', 'error');
+          btn.disabled = false;
+          btn.textContent = 'Ingresar';
+        }
+      } catch (err) {
+        mostrarMsg(msg, 'No hay conexión con el servidor', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Ingresar';
+      }
+    });
+
+    // ── Login Producción ─────────────────────────────────────────
+    document.getElementById('formProduccion').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnProduccion');
+      const msg = document.getElementById('msgProduccion');
+      const usuario  = document.getElementById('pUsuario').value.trim();
+      const password = document.getElementById('pPassword').value.trim();
+
+      if (!usuario || !password) {
+        mostrarMsg(msg, 'Complete todos los campos', 'error');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Ingresando...';
+      msg.className = 'msg';
+
+      try {
+        // Login directo contra el servicio de producción vía NGINX
+        const res = await fetch('/produccion/login/produccion', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({usuario, password})
+        });
+        const data = await res.json();
+        if (data.ok) {
+          mostrarMsg(msg, '✓ Acceso correcto. Cargando...', 'success');
+          setTimeout(() => { window.location.href = data.redirect; }, 600);
+        } else {
+          mostrarMsg(msg, data.error || 'Error de acceso', 'error');
+          btn.disabled = false;
+          btn.textContent = 'Ingresar';
+        }
+      } catch (err) {
+        mostrarMsg(msg, 'No hay conexión con el servidor', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Ingresar';
+      }
+    });
+  </script>
+</body>
+</html>
