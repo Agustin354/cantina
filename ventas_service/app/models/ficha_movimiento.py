@@ -1,6 +1,5 @@
 from datetime import datetime
-
-VALOR_FICHA = 1000
+from config import VALOR_FICHA
 
 
 def crear_movimiento(tipo, monto_guaranies, observacion=""):

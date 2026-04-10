@@ -2,8 +2,7 @@ from repositories.venta_repo import ventas_del_dia, top_productos, total_ventas_
 from repositories.ficha_repo import (
     total_fichas_emitidas, total_fichas_usadas, total_ingresado_guaranies
 )
-
-VALOR_FICHA = 1000
+from config import VALOR_FICHA
 
 
 def calcular_stats():

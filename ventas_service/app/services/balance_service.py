@@ -1,6 +1,5 @@
 from repositories.ficha_repo import total_fichas_emitidas, total_fichas_usadas
-
-VALOR_FICHA = 1000
+from config import VALOR_FICHA
 
 
 def calcular_balance():

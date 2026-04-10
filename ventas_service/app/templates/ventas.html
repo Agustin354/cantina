@@ -19,7 +19,6 @@
       --shadow-sm:    rgba(0,0,0,0.07);
       --shadow-md:    rgba(0,0,0,0.10);
       --accent:       #0f3460;
-      --accent-light: #0f3460;
     }
     [data-theme="dark"] {
       --bg:           #0d1117;
@@ -34,261 +33,205 @@
       --shadow-sm:    rgba(0,0,0,0.25);
       --shadow-md:    rgba(0,0,0,0.40);
       --accent:       #58a6ff;
-      --accent-light: #388bfd;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; display: flex; flex-direction: column;
       transition: background 0.25s, color 0.25s;
     }
 
     /* ── Header ─────────────────────────────────────────── */
     header {
       background: linear-gradient(90deg, #1a1a2e, #0f3460);
-      color: #fff;
-      padding: 14px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      color: #fff; padding: 14px 24px;
+      display: flex; align-items: center; justify-content: space-between;
       box-shadow: 0 3px 12px rgba(0,0,0,0.3);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      gap: 12px;
+      position: sticky; top: 0; z-index: 100; gap: 12px;
     }
     header h1 { font-size: 1.3rem; font-weight: 800; }
     header .user-info { font-size: 0.9rem; color: #a0b4cc; }
     .header-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
     .btn-logout {
-      background: rgba(255,255,255,0.15);
-      color: #fff;
+      background: rgba(255,255,255,0.15); color: #fff;
       border: 1px solid rgba(255,255,255,0.3);
-      padding: 8px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 0.85rem;
-      font-weight: 600;
-      transition: background 0.2s;
-      text-decoration: none;
+      padding: 8px 16px; border-radius: 8px; cursor: pointer;
+      font-size: 0.85rem; font-weight: 600;
+      transition: background 0.2s; text-decoration: none;
     }
     .btn-logout:hover { background: rgba(255,255,255,0.25); }
     .btn-tema {
       background: rgba(255,255,255,0.15);
-      border: 1px solid rgba(255,255,255,0.3);
-      color: #fff;
-      width: 38px; height: 38px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1.1rem;
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.2s;
-      flex-shrink: 0;
+      border: 1px solid rgba(255,255,255,0.3); color: #fff;
+      width: 38px; height: 38px; border-radius: 8px; cursor: pointer;
+      font-size: 1.1rem; display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s; flex-shrink: 0;
     }
     .btn-tema:hover { background: rgba(255,255,255,0.25); }
 
     /* ── Tabs ────────────────────────────────────────────── */
     .tabs {
-      display: flex;
-      background: var(--surface);
-      border-bottom: 3px solid var(--border);
-      padding: 0 24px;
+      display: flex; background: var(--surface);
+      border-bottom: 3px solid var(--border); padding: 0 24px;
       transition: background 0.25s, border-color 0.25s;
     }
     .tab-btn {
-      padding: 16px 28px;
-      font-size: 1rem;
-      font-weight: 700;
-      border: none;
-      background: none;
-      cursor: pointer;
+      padding: 16px 24px; font-size: 0.95rem; font-weight: 700;
+      border: none; background: none; cursor: pointer;
       color: var(--text-muted);
-      border-bottom: 3px solid transparent;
-      margin-bottom: -3px;
+      border-bottom: 3px solid transparent; margin-bottom: -3px;
       transition: color 0.2s, border-color 0.2s;
     }
     .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
     .tab-btn:hover:not(.active) { color: var(--text-sec); }
-
     .tab-content { display: none; flex: 1; padding: 24px; }
     .tab-content.active { display: flex; flex-direction: column; }
 
-    /* ── Balance Indicator ───────────────────────────────── */
+    /* ── Balance Bar ─────────────────────────────────────── */
     #balance-bar {
-      background: var(--surface);
-      border-radius: 12px;
-      padding: 14px 20px;
-      margin-bottom: 20px;
-      display: flex;
-      gap: 24px;
-      align-items: center;
-      flex-wrap: wrap;
-      box-shadow: 0 2px 8px var(--shadow-sm);
-      transition: background 0.25s;
+      background: var(--surface); border-radius: 12px;
+      padding: 14px 20px; margin-bottom: 20px;
+      display: flex; gap: 24px; align-items: center; flex-wrap: wrap;
+      box-shadow: 0 2px 8px var(--shadow-sm); transition: background 0.25s;
     }
     #balance-bar .bal-item { font-size: 0.9rem; }
     #balance-bar .bal-item span { font-weight: 700; font-size: 1rem; }
     #saldo-fichas { color: #27ae60; }
     #saldo-gs     { color: var(--accent); }
 
-    /* ── Emisión de Fichas ───────────────────────────────── */
-    .emision-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 16px;
-      margin-bottom: 24px;
+    /* ── Emisión — lista dinámica ────────────────────────── */
+    .emision-add-row {
+      display: flex; gap: 10px; align-items: flex-end;
+      background: var(--surface); padding: 16px 20px;
+      border-radius: 12px; box-shadow: 0 2px 8px var(--shadow-sm);
+      margin-bottom: 16px; flex-wrap: wrap; transition: background 0.25s;
     }
-    .emision-row {
-      background: var(--surface);
-      border-radius: 12px;
-      padding: 18px 20px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      box-shadow: 0 2px 8px var(--shadow-sm);
-      transition: background 0.25s;
+    .emision-add-row .ea-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 120px; }
+    .emision-add-row label { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
+    .emision-add-row select,
+    .emision-add-row input[type=number] {
+      padding: 11px 14px; border: 2px solid var(--border-input);
+      border-radius: 10px; font-size: 0.95rem; font-weight: 600;
+      background: var(--surface); color: var(--text); outline: none;
+      transition: border-color 0.2s, background 0.25s; width: 100%;
     }
-    .denom-badge {
-      background: #0f3460;
-      color: #fff;
-      padding: 10px 14px;
-      border-radius: 10px;
-      font-weight: 800;
-      font-size: 0.95rem;
-      white-space: nowrap;
-      min-width: 110px;
-      text-align: center;
+    .emision-add-row select:focus,
+    .emision-add-row input[type=number]:focus { border-color: #27ae60; }
+    .btn-add-denom {
+      background: #27ae60; color: #fff; border: none;
+      width: 46px; height: 46px; border-radius: 10px;
+      font-size: 1.8rem; line-height: 1; cursor: pointer; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s; flex-shrink: 0; align-self: flex-end;
     }
-    [data-theme="dark"] .denom-badge { background: #1d3557; }
-    .emision-row input[type=number] {
-      width: 80px;
-      padding: 10px 12px;
-      border: 2px solid var(--border-input);
-      border-radius: 8px;
-      font-size: 1.1rem;
-      font-weight: 700;
-      text-align: center;
-      outline: none;
-      background: var(--surface);
-      color: var(--text);
-      transition: border-color 0.2s, background 0.25s, color 0.25s;
+    .btn-add-denom:hover { background: #219a52; }
+    .emision-lista { margin-bottom: 16px; }
+    .emision-item {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--surface); padding: 12px 16px;
+      border-radius: 10px; margin-bottom: 8px;
+      box-shadow: 0 1px 4px var(--shadow-sm); transition: background 0.25s;
     }
-    .emision-row input[type=number]:focus { border-color: var(--accent); }
-    .emision-subtotal {
-      margin-left: auto;
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      white-space: nowrap;
+    .ei-badge {
+      background: #0f3460; color: #fff; padding: 8px 12px;
+      border-radius: 8px; font-weight: 800; font-size: 0.88rem;
+      white-space: nowrap; min-width: 105px; text-align: center;
     }
-    .emision-subtotal strong { color: #27ae60; font-size: 1rem; }
-
+    [data-theme="dark"] .ei-badge { background: #1d3557; }
+    .ei-qty { font-size: 1.1rem; font-weight: 900; color: var(--text); min-width: 22px; text-align: center; }
+    .ei-sub { margin-left: auto; font-weight: 700; color: #27ae60; font-size: 0.95rem; white-space: nowrap; }
+    .ei-fic { font-size: 0.78rem; color: var(--text-subtle); white-space: nowrap; }
+    .ei-del { background: none; border: none; color: #c0392b; cursor: pointer; font-size: 1.3rem; padding: 2px 4px; line-height: 1; }
+    .ei-del:hover { color: #e74c3c; }
+    .emision-empty { text-align: center; color: var(--text-subtle); padding: 28px 0; font-size: 0.9rem; }
     #total-emision {
-      background: var(--surface);
-      border-radius: 12px;
-      padding: 20px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      flex-wrap: wrap;
-      box-shadow: 0 2px 8px var(--shadow-sm);
-      margin-bottom: 16px;
+      background: var(--surface); border-radius: 12px; padding: 20px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap;
+      box-shadow: 0 2px 8px var(--shadow-sm); margin-bottom: 16px;
       transition: background 0.25s;
     }
     #total-emision .total-text { font-size: 1.1rem; color: var(--text-sec); }
     #total-emision .total-num  { font-size: 1.5rem; font-weight: 900; color: #27ae60; }
     #total-fichas-emision      { color: var(--accent) !important; }
-
     .btn-confirmar {
-      background: #27ae60;
-      color: #fff;
-      border: none;
-      padding: 18px 36px;
-      border-radius: 12px;
-      font-size: 1.15rem;
-      font-weight: 800;
-      cursor: pointer;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      transition: background 0.2s, transform 0.1s;
-      width: 100%;
+      background: #27ae60; color: #fff; border: none;
+      padding: 18px 36px; border-radius: 12px; font-size: 1.15rem;
+      font-weight: 800; cursor: pointer; letter-spacing: 1px;
+      text-transform: uppercase; transition: background 0.2s, transform 0.1s; width: 100%;
     }
     .btn-confirmar:hover:not(:disabled) { background: #219a52; }
     .btn-confirmar:active:not(:disabled) { transform: scale(0.98); }
     .btn-confirmar:disabled { opacity: 0.6; cursor: not-allowed; }
 
+    /* ── Filtros de categoría ────────────────────────────── */
+    .filtros {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;
+    }
+    .filtro-btn {
+      padding: 7px 16px; border-radius: 20px; border: 2px solid var(--border-input);
+      background: var(--surface); color: var(--text-muted);
+      font-size: 0.82rem; font-weight: 700; cursor: pointer;
+      transition: all 0.2s; white-space: nowrap;
+    }
+    .filtro-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .filtro-btn:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+
+    /* ── Estado badge ────────────────────────────────────── */
+    .badge-activo {
+      display: inline-block; padding: 2px 8px; border-radius: 10px;
+      font-size: 0.72rem; font-weight: 700;
+      background: #e9f7ef; color: #1e8449;
+    }
+    [data-theme="dark"] .badge-activo { background: #1a3828; color: #56d364; }
+
     /* ── Productos + Carrito ────────────────────────────── */
     .ventas-layout { display: flex; gap: 20px; flex: 1; min-height: 0; }
     .productos-panel { flex: 1; overflow-y: auto; }
     .productos-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 12px;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px;
     }
     .producto-card {
-      background: var(--surface);
-      border-radius: 12px;
-      padding: 16px 12px;
-      text-align: center;
-      cursor: pointer;
+      background: var(--surface); border-radius: 12px; padding: 16px 12px;
+      text-align: center; cursor: pointer;
       box-shadow: 0 2px 8px var(--shadow-sm);
       transition: transform 0.15s, box-shadow 0.15s, background 0.25s;
-      border: 2px solid transparent;
-      user-select: none;
+      border: 2px solid transparent; user-select: none;
     }
     .producto-card:hover {
       transform: translateY(-3px);
-      box-shadow: 0 6px 20px var(--shadow-md);
-      border-color: #27ae60;
+      box-shadow: 0 6px 20px var(--shadow-md); border-color: #27ae60;
     }
     .producto-card:active { transform: scale(0.97); }
     .producto-card.sin-stock { opacity: 0.45; pointer-events: none; }
-    .prod-nombre { font-size: 0.9rem; font-weight: 700; color: var(--text); margin-bottom: 8px; }
-    .prod-precio { font-size: 1.2rem; font-weight: 900; color: #27ae60; }
-    .prod-fichas { font-size: 0.72rem; color: var(--text-subtle); }
-    .prod-stock  { font-size: 0.75rem; color: var(--text-subtle); margin-top: 4px; }
+    .prod-nombre  { font-size: 0.88rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .prod-precio  { font-size: 1.15rem; font-weight: 900; color: #27ae60; }
+    .prod-fichas  { font-size: 0.7rem; color: var(--text-subtle); }
+    .prod-stock   { font-size: 0.73rem; color: var(--text-subtle); margin-top: 3px; }
 
     /* ── Carrito ─────────────────────────────────────────── */
     .carrito-panel {
-      width: 320px;
-      min-width: 280px;
-      background: var(--surface);
-      border-radius: 16px;
-      padding: 20px;
+      width: 320px; min-width: 280px; background: var(--surface);
+      border-radius: 16px; padding: 20px;
       box-shadow: 0 4px 16px var(--shadow-md);
-      display: flex;
-      flex-direction: column;
-      transition: background 0.25s;
+      display: flex; flex-direction: column; transition: background 0.25s;
     }
     .carrito-panel h3 {
-      font-size: 1.1rem;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 16px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid var(--border);
+      font-size: 1.1rem; font-weight: 800; color: var(--text);
+      margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--border);
     }
     #lista-carrito { flex: 1; overflow-y: auto; min-height: 120px; max-height: 340px; }
     .carrito-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 0;
-      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 0; border-bottom: 1px solid var(--border);
     }
     .ci-nombre  { flex: 1; font-size: 0.85rem; font-weight: 600; color: var(--text-sec); }
     .ci-qty-btn {
-      width: 28px; height: 28px;
-      border: none; border-radius: 6px;
-      background: var(--surface-2); cursor: pointer;
-      font-size: 1rem; font-weight: 700; color: var(--text);
-      display: flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border: none; border-radius: 6px;
+      background: var(--surface-2); cursor: pointer; font-size: 1rem; font-weight: 700;
+      color: var(--text); display: flex; align-items: center; justify-content: center;
       transition: background 0.15s;
     }
     .ci-qty-btn:hover { background: var(--border-input); }
@@ -297,54 +240,161 @@
     .ci-del { background: none; border: none; color: #c0392b; cursor: pointer; font-size: 1.1rem; padding: 2px 4px; }
     #carrito-vacio { text-align: center; color: var(--text-subtle); padding: 32px 0; font-size: 0.95rem; }
     .carrito-total { margin-top: 14px; padding-top: 14px; border-top: 2px solid var(--border); }
-    .ct-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 6px;
-      font-size: 0.9rem;
-      color: var(--text-muted);
-    }
+    .ct-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.9rem; color: var(--text-muted); }
     .ct-row strong { color: var(--text); }
-    .ct-total {
-      display: flex;
-      justify-content: space-between;
-      margin: 10px 0;
-      font-size: 1.2rem;
-      font-weight: 900;
-      color: var(--text);
-    }
+    .ct-total { display: flex; justify-content: space-between; margin: 10px 0; font-size: 1.2rem; font-weight: 900; color: var(--text); }
     .ct-total .total-gs { color: #27ae60; }
     .btn-pagar {
-      width: 100%;
-      padding: 16px;
-      background: #e74c3c;
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      font-size: 1.1rem;
-      font-weight: 800;
-      cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-top: 10px;
+      width: 100%; padding: 16px; background: #e74c3c; color: #fff; border: none;
+      border-radius: 12px; font-size: 1.1rem; font-weight: 800; cursor: pointer;
+      text-transform: uppercase; letter-spacing: 1px; margin-top: 10px;
       transition: background 0.2s, transform 0.1s;
     }
     .btn-pagar:hover:not(:disabled) { background: #c0392b; }
     .btn-pagar:active:not(:disabled) { transform: scale(0.98); }
     .btn-pagar:disabled { opacity: 0.6; cursor: not-allowed; }
 
+    /* ── TAB GESTIÓN ─────────────────────────────────────── */
+    .gestion-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+    @media (max-width: 640px) { .gestion-grid { grid-template-columns: 1fr; } }
+
+    .gestion-card {
+      background: var(--surface); border-radius: 14px; padding: 24px;
+      box-shadow: 0 2px 8px var(--shadow-sm); transition: background 0.25s;
+    }
+    .gestion-card h3 { font-size: 1rem; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+    .gestion-card p  { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; }
+    .btn-gestion {
+      width: 100%; padding: 14px; border: none; border-radius: 10px;
+      font-size: 1rem; font-weight: 700; cursor: pointer;
+      text-transform: uppercase; letter-spacing: 1px;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn-gestion:active { transform: scale(0.98); }
+    .btn-gestion-a { background: #27ae60; color: #fff; }
+    .btn-gestion-a:hover { background: #219a52; }
+    .btn-gestion-b { background: #e67e22; color: #fff; }
+    .btn-gestion-b:hover { background: #ca6f1e; }
+
+    /* ── Tabla de gestión ────────────────────────────────── */
+    .tabla-gestion-wrap { background: var(--surface); border-radius: 14px; padding: 20px 24px; box-shadow: 0 2px 8px var(--shadow-sm); transition: background 0.25s; }
+    .tabla-gestion-wrap h3 { font-size: 1rem; font-weight: 800; color: var(--text); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+    .tabla-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th { background: #0f3460; color: #fff; padding: 10px 14px; text-align: left; font-weight: 700; white-space: nowrap; }
+    [data-theme="dark"] th { background: #1d3557; }
+    td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: var(--text-sec); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface-2); }
+    .badge-cat {
+      display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.72rem; font-weight: 700;
+    }
+    .badge-salado  { background: #fff3e0; color: #e65100; }
+    .badge-dulce   { background: #fce4ec; color: #c62828; }
+    .badge-bebida  { background: #e3f2fd; color: #1565c0; }
+    .badge-general { background: var(--surface-2); color: var(--text-muted); }
+    [data-theme="dark"] .badge-salado  { background: #3a1f00; color: #ffa94d; }
+    [data-theme="dark"] .badge-dulce   { background: #3b1a2a; color: #f78166; }
+    [data-theme="dark"] .badge-bebida  { background: #1d3557; color: #58a6ff; }
+    .btn-edit-precio {
+      background: var(--accent); color: #fff; border: none;
+      padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700;
+      cursor: pointer; transition: opacity 0.2s;
+    }
+    .btn-edit-precio:hover { opacity: 0.82; }
+    .btn-desactivar {
+      background: #e74c3c; color: #fff; border: none;
+      padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700;
+      cursor: pointer; transition: opacity 0.2s; margin-left: 4px;
+    }
+    .btn-desactivar:hover { opacity: 0.82; }
+    .btn-activar {
+      background: #27ae60; color: #fff; border: none;
+      padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700;
+      cursor: pointer; transition: opacity 0.2s;
+    }
+    .btn-activar:hover { opacity: 0.82; }
+    .badge-inactivo { background: var(--surface-2); color: var(--text-subtle); font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+
+    /* ── MODALES ─────────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55); backdrop-filter: blur(3px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 500; padding: 20px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--surface); border-radius: 18px;
+      padding: 32px 28px; width: 100%; max-width: 460px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+      transform: translateY(16px); transition: transform 0.25s;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+    .modal h2 { font-size: 1.2rem; font-weight: 800; color: var(--text); margin-bottom: 20px; }
+    .modal-close {
+      float: right; background: none; border: none; font-size: 1.4rem;
+      cursor: pointer; color: var(--text-muted); line-height: 1; margin-top: -4px;
+    }
+    .modal-close:hover { color: #e74c3c; }
+
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block; font-size: 0.82rem; font-weight: 700;
+      color: var(--text-muted); margin-bottom: 6px;
+      text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    .form-group input,
+    .form-group select {
+      width: 100%; padding: 11px 14px;
+      border: 2px solid var(--border-input); border-radius: 10px;
+      font-size: 0.95rem; background: var(--surface); color: var(--text);
+      outline: none; transition: border-color 0.2s, background 0.25s;
+    }
+    .form-group input:focus,
+    .form-group select:focus { border-color: var(--accent); }
+    .form-hint { font-size: 0.78rem; color: var(--text-subtle); margin-top: 4px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    .btn-modal-submit {
+      width: 100%; padding: 14px; border: none; border-radius: 10px;
+      font-size: 1rem; font-weight: 700; cursor: pointer;
+      text-transform: uppercase; letter-spacing: 1px;
+      margin-top: 8px; transition: opacity 0.2s, transform 0.1s;
+    }
+    .btn-modal-submit:hover:not(:disabled) { opacity: 0.88; }
+    .btn-modal-submit:active:not(:disabled) { transform: scale(0.98); }
+    .btn-modal-submit:disabled { opacity: 0.55; cursor: not-allowed; }
+    .btn-submit-a { background: #27ae60; color: #fff; }
+    .btn-submit-b { background: #e67e22; color: #fff; }
+
+    .modal-msg {
+      margin-top: 12px; padding: 10px 14px; border-radius: 8px;
+      font-size: 0.88rem; font-weight: 600; text-align: center; display: none;
+    }
+    .modal-msg.error   { background: #fdecea; color: #c0392b; display: block; }
+    .modal-msg.success { background: #e9f7ef; color: #1e8449; display: block; }
+    [data-theme="dark"] .modal-msg.error   { background: #3b1a1a; color: #ff7b72; }
+    [data-theme="dark"] .modal-msg.success { background: #1a3828; color: #56d364; }
+
+    /* ── Color picker visual ─────────────────────────────── */
+    .color-options { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+    .color-dot {
+      width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+      border: 3px solid transparent; transition: border-color 0.15s, transform 0.15s;
+    }
+    .color-dot.selected,
+    .color-dot:hover { border-color: var(--text); transform: scale(1.15); }
+
     /* ── Toast ───────────────────────────────────────────── */
     #toast {
-      position: fixed;
-      bottom: 30px; left: 50%;
+      position: fixed; bottom: 30px; left: 50%;
       transform: translateX(-50%) translateY(100px);
-      background: #1a1a2e;
-      color: #fff;
-      padding: 16px 32px;
-      border-radius: 12px;
-      font-size: 1rem; font-weight: 600;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-      z-index: 999;
+      background: #1a1a2e; color: #fff;
+      padding: 16px 32px; border-radius: 12px; font-size: 1rem; font-weight: 600;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3); z-index: 999;
       transition: transform 0.35s cubic-bezier(.4,0,.2,1);
       max-width: 90vw; text-align: center;
     }
@@ -376,13 +426,13 @@
   </header>
 
   <div class="tabs">
-    <button class="tab-btn active" onclick="cambiarTab('emision', this)">🪙 Emitir Fichas</button>
-    <button class="tab-btn"       onclick="cambiarTab('venta',   this)">🛒 Vender Productos</button>
+    <button class="tab-btn active" onclick="cambiarTab('emision',  this)">🪙 Emitir Fichas</button>
+    <button class="tab-btn"       onclick="cambiarTab('venta',    this)">🛒 Vender</button>
+    <button class="tab-btn"       onclick="cambiarTab('gestion',  this)">⚙️ Gestión</button>
   </div>
 
-  <!-- ══ TAB EMISIÓN ════════════════════════════════════════════════ -->
+  <!-- ══ TAB: EMISIÓN ══════════════════════════════════════════════ -->
   <div id="tab-emision" class="tab-content active">
-
     <div id="balance-bar">
       <div class="bal-item">💰 Saldo fichas: <span id="saldo-fichas">—</span></div>
       <div class="bal-item">💵 En Guaraníes: <span id="saldo-gs">—</span></div>
@@ -390,7 +440,23 @@
       <div class="bal-item" id="bal-usadas">📥 Usadas: <span>—</span></div>
     </div>
 
-    <div class="emision-grid" id="emision-grid"></div>
+    <!-- Fila agregar denominación -->
+    <div class="emision-add-row">
+      <div class="ea-group" style="max-width:220px">
+        <label>Denominación</label>
+        <select id="sel-denom"><!-- generado por JS --></select>
+      </div>
+      <div class="ea-group" style="max-width:110px">
+        <label>Cantidad</label>
+        <input type="number" id="qty-denom" min="1" max="999" value="1"/>
+      </div>
+      <button class="btn-add-denom" onclick="agregarDenom()" title="Agregar denominación">+</button>
+    </div>
+
+    <!-- Lista dinámica de emisiones -->
+    <div class="emision-lista" id="emision-lista">
+      <div class="emision-empty" id="emision-empty">Seleccioná una denominación y presioná + para agregar</div>
+    </div>
 
     <div id="total-emision">
       <div>
@@ -402,21 +468,23 @@
         <div class="total-num" id="total-fichas-emision">0 fichas</div>
       </div>
     </div>
-
     <button class="btn-confirmar" id="btn-confirmar-emision" onclick="confirmarEmision()">
       ✅ CONFIRMAR EMISIÓN
     </button>
-
   </div>
 
-  <!-- ══ TAB VENTAS ═════════════════════════════════════════════════ -->
+  <!-- ══ TAB: VENTAS ═══════════════════════════════════════════════ -->
   <div id="tab-venta" class="tab-content">
+    <div class="filtros" id="filtros-categoria">
+      <button class="filtro-btn active" onclick="filtrarCategoria('todos', this)">🔎 Todos</button>
+      <button class="filtro-btn" onclick="filtrarCategoria('salado', this)">🥪 Salados</button>
+      <button class="filtro-btn" onclick="filtrarCategoria('dulce',  this)">🍰 Dulces</button>
+      <button class="filtro-btn" onclick="filtrarCategoria('bebida', this)">☕ Bebidas</button>
+    </div>
     <div class="ventas-layout">
-
       <div class="productos-panel">
         <div class="productos-grid" id="productos-grid"></div>
       </div>
-
       <div class="carrito-panel">
         <h3>🛒 Carrito</h3>
         <div id="lista-carrito">
@@ -431,7 +499,167 @@
           <button class="btn-pagar" id="btn-pagar" onclick="procesarPago()">💳 PAGAR</button>
         </div>
       </div>
+    </div>
+  </div>
 
+  <!-- ══ TAB: GESTIÓN ══════════════════════════════════════════════ -->
+  <div id="tab-gestion" class="tab-content">
+
+    <div class="gestion-grid">
+      <!-- BOTÓN A -->
+      <div class="gestion-card" style="border-top:4px solid #27ae60">
+        <div style="font-size:2rem;margin-bottom:10px">➕</div>
+        <h3>Agregar Producto</h3>
+        <p>Registrar un nuevo producto con nombre, categoría, precio en Guaraníes y stock inicial.</p>
+        <button class="btn-gestion btn-gestion-a" onclick="abrirModalA()">➕ NUEVO PRODUCTO</button>
+      </div>
+      <!-- BOTÓN B -->
+      <div class="gestion-card" style="border-top:4px solid #e67e22">
+        <div style="font-size:2rem;margin-bottom:10px">🏷️</div>
+        <h3>Nueva Ficha / Modificar Precio</h3>
+        <p>Crear una nueva denominación de ficha o actualizar el precio de un producto existente.</p>
+        <button class="btn-gestion btn-gestion-b" onclick="abrirModalB()">🏷️ FICHA / PRECIO</button>
+      </div>
+    </div>
+
+    <!-- Tabla de productos -->
+    <div class="tabla-gestion-wrap" id="tabla-productos-wrap">
+      <h3>
+        📦 Catálogo de Productos
+        <span style="font-size:0.8rem;font-weight:400;color:var(--text-muted)" id="gestion-count"></span>
+      </h3>
+      <div class="tabla-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Categoría</th>
+              <th style="text-align:right">Precio Gs.</th>
+              <th style="text-align:right">Fichas</th>
+              <th style="text-align:right">Stock</th>
+              <th>Estado</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody id="body-gestion">
+            <tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-subtle)">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ MODAL A — AGREGAR PRODUCTO ══════════════════════════════ -->
+  <div class="modal-overlay" id="modal-a" onclick="cerrarModalSiFondo(event, 'modal-a')">
+    <div class="modal">
+      <button class="modal-close" onclick="cerrarModal('modal-a')">✕</button>
+      <h2>➕ Agregar Producto</h2>
+
+      <div class="form-group">
+        <label>Nombre del producto *</label>
+        <input type="text" id="ma-nombre" placeholder="Ej: Torta de Chocolate" maxlength="80"/>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Categoría *</label>
+          <select id="ma-categoria">
+            <option value="salado">🥪 Salado</option>
+            <option value="dulce">🍰 Dulce</option>
+            <option value="bebida">☕ Bebida</option>
+            <option value="general">📦 General</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Stock inicial</label>
+          <input type="number" id="ma-stock" min="0" value="0" placeholder="0"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Precio en Guaraníes *</label>
+        <input type="number" id="ma-precio" min="500" step="500" placeholder="Ej: 3000"/>
+        <div class="form-hint">Múltiplo de 500 Gs. — 1 ficha = 500 Gs.</div>
+      </div>
+      <div class="form-group">
+        <label>Equivalencia en fichas</label>
+        <div id="ma-equiv" style="font-size:1.1rem;font-weight:700;color:#27ae60;padding:8px 0">
+          — fichas
+        </div>
+      </div>
+
+      <button class="btn-modal-submit btn-submit-a" id="btn-ma-submit" onclick="submitModalA()">
+        ✅ GUARDAR PRODUCTO
+      </button>
+      <div class="modal-msg" id="msg-modal-a"></div>
+    </div>
+  </div>
+
+  <!-- ════ MODAL B — FICHA / PRECIO ════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-b" onclick="cerrarModalSiFondo(event, 'modal-b')">
+    <div class="modal">
+      <button class="modal-close" onclick="cerrarModal('modal-b')">✕</button>
+      <h2>🏷️ Nueva Ficha / Modificar Precio</h2>
+
+      <!-- Selector de acción -->
+      <div class="filtros" style="margin-bottom:20px" id="mb-accion-btns">
+        <button class="filtro-btn active" id="mb-tab-denom"  onclick="mbCambiarAccion('denominacion', this)">💵 Nueva Denominación</button>
+        <button class="filtro-btn"       id="mb-tab-precio" onclick="mbCambiarAccion('precio', this)">✏️ Modificar Precio</button>
+      </div>
+
+      <!-- Panel: Nueva Denominación -->
+      <div id="mb-panel-denominacion">
+        <div class="form-group">
+          <label>Nombre de la denominación *</label>
+          <input type="text" id="mb-d-nombre" placeholder="Ej: Ficha 25" maxlength="50"/>
+        </div>
+        <div class="form-group">
+          <label>Valor en Guaraníes *</label>
+          <input type="number" id="mb-d-valor" min="500" step="500" placeholder="Ej: 25000"/>
+          <div class="form-hint">Múltiplo de 500 Gs.</div>
+        </div>
+        <div class="form-group">
+          <label>Color</label>
+          <div class="color-options" id="mb-color-options">
+            <div class="color-dot selected" style="background:#27AE60" data-color="#27AE60" onclick="seleccionarColor(this)"></div>
+            <div class="color-dot" style="background:#2980B9" data-color="#2980B9" onclick="seleccionarColor(this)"></div>
+            <div class="color-dot" style="background:#8E44AD" data-color="#8E44AD" onclick="seleccionarColor(this)"></div>
+            <div class="color-dot" style="background:#E67E22" data-color="#E67E22" onclick="seleccionarColor(this)"></div>
+            <div class="color-dot" style="background:#E74C3C" data-color="#E74C3C" onclick="seleccionarColor(this)"></div>
+            <div class="color-dot" style="background:#1ABC9C" data-color="#1ABC9C" onclick="seleccionarColor(this)"></div>
+            <div class="color-dot" style="background:#95A5A6" data-color="#95A5A6" onclick="seleccionarColor(this)"></div>
+          </div>
+        </div>
+        <button class="btn-modal-submit btn-submit-b" id="btn-mb-denom-submit" onclick="submitModalBDenom()">
+          💵 CREAR DENOMINACIÓN
+        </button>
+      </div>
+
+      <!-- Panel: Modificar Precio -->
+      <div id="mb-panel-precio" style="display:none">
+        <div class="form-group">
+          <label>Producto *</label>
+          <select id="mb-p-producto">
+            <option value="">— Seleccionar producto —</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Precio actual</label>
+          <div id="mb-p-precio-actual" style="font-size:1rem;font-weight:700;color:var(--text-muted);padding:6px 0">—</div>
+        </div>
+        <div class="form-group">
+          <label>Nuevo precio en Guaraníes *</label>
+          <input type="number" id="mb-p-precio-nuevo" min="500" step="500" placeholder="Ej: 4000"/>
+          <div class="form-hint">Múltiplo de 500 Gs.</div>
+        </div>
+        <div class="form-group">
+          <label>Nueva equivalencia en fichas</label>
+          <div id="mb-p-equiv" style="font-size:1.1rem;font-weight:700;color:#e67e22;padding:8px 0">— fichas</div>
+        </div>
+        <button class="btn-modal-submit btn-submit-b" id="btn-mb-precio-submit" onclick="submitModalBPrecio()">
+          ✏️ ACTUALIZAR PRECIO
+        </button>
+      </div>
+
+      <div class="modal-msg" id="msg-modal-b"></div>
     </div>
   </div>
 
@@ -456,10 +684,18 @@
   let toastTimer;
   function toast(msg, tipo = 'success') {
     const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className = 'show ' + tipo;
+    t.textContent = msg; t.className = 'show ' + tipo;
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => { t.className = ''; }, 3500);
+  }
+
+  function mostrarMsgModal(id, texto, tipo) {
+    const el = document.getElementById(id);
+    el.textContent = texto; el.className = 'modal-msg ' + tipo;
+  }
+  function limpiarMsgModal(id) {
+    const el = document.getElementById(id);
+    el.className = 'modal-msg'; el.textContent = '';
   }
 
   // ═══ TABS ══════════════════════════════════════════════════════════════════
@@ -468,8 +704,9 @@
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.getElementById('tab-' + nombre).classList.add('active');
     btn.classList.add('active');
-    if (nombre === 'venta' && productos.length === 0) cargarProductos();
+    if (nombre === 'venta'   && productos.length === 0) cargarProductos();
     if (nombre === 'emision') cargarBalance();
+    if (nombre === 'gestion') cargarTablaGestion();
   }
 
   // ═══ BALANCE ═══════════════════════════════════════════════════════════════
@@ -485,79 +722,115 @@
     } catch(e) {}
   }
 
-  // ═══ DENOMINACIONES + EMISIÓN ═════════════════════════════════════════════
-  const DENOMINACIONES = [1000, 5000, 10000, 15000, 20000];
+  // ═══ EMISIÓN ═══════════════════════════════════════════════════════════════
+  // Denominaciones de 500 en 500 hasta 25.000 Gs. (50 valores)
+  const DENOMS_RANGO = Array.from({length: 50}, (_, i) => (i + 1) * 500);
+  let emisionItems = []; // [{denom, cantidad}, ...]
 
-  function buildEmisionGrid() {
-    const grid = document.getElementById('emision-grid');
-    grid.innerHTML = '';
-    DENOMINACIONES.forEach(d => {
-      const row = document.createElement('div');
-      row.className = 'emision-row';
-      row.innerHTML = `
-        <div class="denom-badge">💵 ${d.toLocaleString('es-PY')} Gs.</div>
-        <input type="number" min="0" max="999" value="0"
-               id="qty-${d}" onchange="recalcularEmision()"
-               oninput="recalcularEmision()" placeholder="0"/>
-        <div class="emision-subtotal">
-          <div>subtotal:</div>
-          <strong id="sub-${d}">Gs. 0</strong>
-        </div>`;
-      grid.appendChild(row);
+  function buildSelectorDenoms() {
+    const sel = document.getElementById('sel-denom');
+    sel.innerHTML = '';
+    DENOMS_RANGO.forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v;
+      opt.textContent = v.toLocaleString('es-PY') + ' Gs.';
+      sel.appendChild(opt);
     });
+    sel.value = 1000; // valor por defecto
   }
 
-  function recalcularEmision() {
+  async function cargarEmisionPorDefecto() {
+    try {
+      const res = await fetch('/api/denominaciones');
+      if (!res.ok) return;
+      const denoms = await res.json();
+      // Pre-cargar 10 fichas de cada denominación activa
+      emisionItems = denoms.map(d => ({ denom: d.valor_gs, cantidad: 10 }));
+      renderEmisionLista();
+    } catch(e) {}
+  }
+
+  function agregarDenom() {
+    const denom = parseInt(document.getElementById('sel-denom').value);
+    const cant  = parseInt(document.getElementById('qty-denom').value) || 1;
+    if (cant <= 0) return;
+    const existing = emisionItems.find(it => it.denom === denom);
+    if (existing) {
+      existing.cantidad += cant;
+    } else {
+      emisionItems.push({ denom, cantidad: cant });
+    }
+    document.getElementById('qty-denom').value = 1;
+    renderEmisionLista();
+  }
+
+  function quitarDenomItem(idx) {
+    emisionItems.splice(idx, 1);
+    renderEmisionLista();
+  }
+
+  function cambiarCantidadDenom(idx, delta) {
+    emisionItems[idx].cantidad += delta;
+    if (emisionItems[idx].cantidad <= 0) emisionItems.splice(idx, 1);
+    renderEmisionLista();
+  }
+
+  function renderEmisionLista() {
+    const lista = document.getElementById('emision-lista');
+    const empty = document.getElementById('emision-empty');
+    lista.querySelectorAll('.emision-item').forEach(el => el.remove());
+
     let totalGs = 0, totalFichas = 0;
-    DENOMINACIONES.forEach(d => {
-      const qty = parseInt(document.getElementById('qty-' + d).value) || 0;
-      const sub = d * qty;
-      document.getElementById('sub-' + d).textContent = 'Gs. ' + sub.toLocaleString('es-PY');
-      totalGs     += sub;
-      totalFichas += sub / 1000;
-    });
+
+    if (emisionItems.length === 0) {
+      empty.style.display = '';
+    } else {
+      empty.style.display = 'none';
+      emisionItems.forEach((it, idx) => {
+        const sub    = it.denom * it.cantidad;
+        const fichas = sub / 500;
+        totalGs     += sub;
+        totalFichas += fichas;
+        const div = document.createElement('div');
+        div.className = 'emision-item';
+        div.innerHTML = `
+          <div class="ei-badge">💵 ${it.denom.toLocaleString('es-PY')} Gs.</div>
+          <button class="ci-qty-btn" onclick="cambiarCantidadDenom(${idx}, -1)">−</button>
+          <div class="ei-qty">${it.cantidad}</div>
+          <button class="ci-qty-btn" onclick="cambiarCantidadDenom(${idx}, 1)">+</button>
+          <div class="ei-sub">${fmt(sub)}</div>
+          <div class="ei-fic">${fichas} fic.</div>
+          <button class="ei-del" onclick="quitarDenomItem(${idx})" title="Quitar">×</button>`;
+        lista.appendChild(div);
+      });
+    }
+
     document.getElementById('total-gs-emision').textContent     = fmt(totalGs);
     document.getElementById('total-fichas-emision').textContent = totalFichas + ' fichas';
   }
 
   async function confirmarEmision() {
     const btn = document.getElementById('btn-confirmar-emision');
-    const emisiones = DENOMINACIONES
-      .map(d => ({ denominacion: d, cantidad: parseInt(document.getElementById('qty-' + d).value) || 0 }))
-      .filter(e => e.cantidad > 0);
-
-    if (emisiones.length === 0) { toast('Ingrese al menos una cantidad', 'error'); return; }
-
-    btn.disabled = true;
-    btn.textContent = '⏳ Procesando...';
+    const emisiones = emisionItems.map(it => ({ denominacion: it.denom, cantidad: it.cantidad }));
+    if (emisiones.length === 0) { toast('Agregá al menos una denominación', 'error'); return; }
+    btn.disabled = true; btn.textContent = '⏳ Procesando...';
     try {
-      const res = await fetch('/api/emitir', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({emisiones})
-      });
+      const res  = await fetch('/api/emitir', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({emisiones}) });
       const data = await res.json();
       if (data.ok) {
         toast(`✓ ¡Emisión exitosa! ${data.total_fichas} fichas — ${fmt(data.total_guaranies)}`, 'success');
-        DENOMINACIONES.forEach(d => {
-          document.getElementById('qty-' + d).value = 0;
-          document.getElementById('sub-' + d).textContent = 'Gs. 0';
-        });
-        recalcularEmision();
+        cargarEmisionPorDefecto();
         cargarBalance();
-      } else {
-        toast(data.error || 'Error al emitir fichas', 'error');
-      }
-    } catch(e) {
-      toast('No hay conexión con el servidor', 'error');
-    } finally {
-      btn.disabled = false;
-      btn.textContent = '✅ CONFIRMAR EMISIÓN';
-    }
+      } else { toast(data.error || 'Error al emitir fichas', 'error'); }
+    } catch(e) { toast('No hay conexión con el servidor', 'error'); }
+    finally { btn.disabled = false; btn.textContent = '✅ CONFIRMAR EMISIÓN'; }
   }
 
   // ═══ PRODUCTOS ════════════════════════════════════════════════════════════
   let productos = [];
+  let filtroActivo = 'todos';
+
+  const CAT_LABEL   = { salado: '🥪', dulce: '🍰', bebida: '☕', general: '📦' };
 
   async function cargarProductos() {
     try {
@@ -571,20 +844,33 @@
     }
   }
 
+  function filtrarCategoria(cat, btn) {
+    filtroActivo = cat;
+    document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderProductos();
+  }
+
   function renderProductos() {
     const grid = document.getElementById('productos-grid');
     grid.innerHTML = '';
-    productos.forEach(p => {
+    const lista = filtroActivo === 'todos' ? productos : productos.filter(p => p.categoria === filtroActivo);
+    lista.forEach(p => {
       const div = document.createElement('div');
       div.className = 'producto-card' + (p.stock <= 0 ? ' sin-stock' : '');
       div.onclick = () => agregarAlCarrito(p);
+      const gs  = p.precio_guaranies || (p.precio * 500);
+      const cat = CAT_LABEL[p.categoria] || '📦';
       div.innerHTML = `
-        <div class="prod-nombre">${p.nombre}</div>
-        <div class="prod-precio">${p.precio}</div>
-        <div class="prod-fichas">fichas</div>
+        <div class="prod-nombre">${cat} ${p.nombre}</div>
+        <div class="prod-precio">${fmt(gs)}</div>
+        <div class="prod-fichas">${p.precio} ficha${p.precio !== 1 ? 's' : ''}</div>
         <div class="prod-stock">${p.stock > 0 ? 'Stock: ' + p.stock : '⚠️ Sin stock'}</div>`;
       grid.appendChild(div);
     });
+    if (lista.length === 0) {
+      grid.innerHTML = '<p style="padding:20px;color:var(--text-subtle)">Sin productos en esta categoría</p>';
+    }
   }
 
   // ═══ CARRITO ══════════════════════════════════════════════════════════════
@@ -631,7 +917,7 @@
       lista.appendChild(div);
     });
     document.getElementById('ct-fichas').textContent    = totalFichas + ' fichas';
-    document.getElementById('ct-guaranies').textContent = fmt(totalFichas * 1000);
+    document.getElementById('ct-guaranies').textContent = fmt(totalFichas * 500);
     document.getElementById('btn-pagar').disabled = items.length === 0;
   }
 
@@ -639,12 +925,10 @@
     const btn = document.getElementById('btn-pagar');
     const items = Object.values(carrito);
     if (items.length === 0) { toast('El carrito está vacío', 'error'); return; }
-    btn.disabled = true;
-    btn.textContent = '⏳ Procesando...';
+    btn.disabled = true; btn.textContent = '⏳ Procesando...';
     try {
-      const res = await fetch('/api/venta', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+      const res  = await fetch('/api/venta', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ items: items.map(it => ({
           producto_id: it.producto_id, nombre: it.nombre,
           cantidad: it.cantidad, precio_fichas: it.precio_fichas
@@ -653,24 +937,288 @@
       const data = await res.json();
       if (data.ok) {
         toast(`✓ ¡Venta registrada! ${data.total_fichas} fichas — ${fmt(data.total_guaranies)}`, 'success');
-        carrito = {};
-        renderCarrito();
-        cargarProductos();
-      } else {
-        toast(data.error || 'Error al procesar la venta', 'error');
+        carrito = {}; renderCarrito(); cargarProductos();
+      } else { toast(data.error || 'Error al procesar la venta', 'error'); }
+    } catch(e) { toast('No hay conexión con el servidor', 'error'); }
+    finally { btn.disabled = false; btn.textContent = '💳 PAGAR'; }
+  }
+
+  // ═══ TAB GESTIÓN ══════════════════════════════════════════════════════════
+  const CAT_CLASE    = { salado: 'badge-salado', dulce: 'badge-dulce', bebida: 'badge-bebida', general: 'badge-general' };
+  const CAT_TEXTO    = { salado: '🥪 Salado', dulce: '🍰 Dulce', bebida: '☕ Bebida', general: '📦 General' };
+
+  async function cargarTablaGestion() {
+    const tbody = document.getElementById('body-gestion');
+    try {
+      const res  = await fetch('/api/productos/todos');
+      if (!res.ok) throw new Error();
+      const lista = await res.json();
+      document.getElementById('gestion-count').textContent = `(${lista.length} productos)`;
+      if (lista.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--text-subtle)">Sin productos</td></tr>';
+        return;
       }
+      tbody.innerHTML = lista.map(p => {
+        const gs       = p.precio_guaranies || (p.precio * 500);
+        const catCls   = CAT_CLASE[p.categoria]  || 'badge-general';
+        const catTxt   = CAT_TEXTO[p.categoria]  || p.categoria;
+        const estadoHtml = p.activo
+          ? '<span class="badge-activo">✅ Activo</span>'
+          : '<span class="badge-inactivo">🔴 Inactivo</span>';
+        const accionHtml = p.activo
+          ? `<button class="btn-edit-precio" onclick="abrirModalBConProducto('${p._id}', '${p.nombre.replace(/'/g, "\\'")}', ${gs})">✏️ Precio</button>
+             <button class="btn-desactivar" onclick="toggleProducto('${p._id}', false)">🔴 Desactivar</button>`
+          : `<button class="btn-activar" onclick="toggleProducto('${p._id}', true)">✅ Activar</button>`;
+        return `
+          <tr>
+            <td style="font-weight:600">${p.nombre}</td>
+            <td><span class="badge-cat ${catCls}">${catTxt}</span></td>
+            <td style="text-align:right;font-weight:700;color:#27ae60">${fmt(gs)}</td>
+            <td style="text-align:right">${p.precio}</td>
+            <td style="text-align:right">${p.stock}</td>
+            <td>${estadoHtml}</td>
+            <td>${accionHtml}</td>
+          </tr>`;
+      }).join('');
     } catch(e) {
-      toast('No hay conexión con el servidor', 'error');
-    } finally {
-      btn.disabled = false;
-      btn.textContent = '💳 PAGAR';
+      tbody.innerHTML = '<tr><td colspan="7" style="color:#e74c3c;padding:20px">Error al cargar productos</td></tr>';
     }
   }
 
+  // ═══ MODALES — CONTROL ═════════════════════════════════════════════════════
+  function abrirModal(id) {
+    document.getElementById(id).classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function cerrarModal(id) {
+    document.getElementById(id).classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function cerrarModalSiFondo(e, id) {
+    if (e.target === document.getElementById(id)) cerrarModal(id);
+  }
+
+  // ═══ MODAL A — AGREGAR PRODUCTO ════════════════════════════════════════════
+  function abrirModalA() {
+    document.getElementById('ma-nombre').value   = '';
+    document.getElementById('ma-precio').value   = '';
+    document.getElementById('ma-stock').value    = '0';
+    document.getElementById('ma-categoria').value = 'salado';
+    document.getElementById('ma-equiv').textContent = '— fichas';
+    limpiarMsgModal('msg-modal-a');
+    abrirModal('modal-a');
+    setTimeout(() => document.getElementById('ma-nombre').focus(), 200);
+  }
+
+  document.getElementById('ma-precio').addEventListener('input', function() {
+    const gs = parseInt(this.value) || 0;
+    const eq = document.getElementById('ma-equiv');
+    if (gs > 0 && gs % 500 === 0) {
+      eq.textContent = (gs / 500) + ' ficha' + (gs / 500 !== 1 ? 's' : '');
+      eq.style.color = '#27ae60';
+    } else {
+      eq.textContent = gs > 0 ? '⚠️ No es múltiplo de 500' : '— fichas';
+      eq.style.color = gs > 0 ? '#e74c3c' : '';
+    }
+  });
+
+  async function submitModalA() {
+    const btn    = document.getElementById('btn-ma-submit');
+    const nombre = document.getElementById('ma-nombre').value.trim();
+    const precio = parseInt(document.getElementById('ma-precio').value) || 0;
+    const stock  = parseInt(document.getElementById('ma-stock').value)  || 0;
+    const cat    = document.getElementById('ma-categoria').value;
+
+    limpiarMsgModal('msg-modal-a');
+    if (!nombre)       { mostrarMsgModal('msg-modal-a', 'El nombre es obligatorio', 'error'); return; }
+    if (precio <= 0)  { mostrarMsgModal('msg-modal-a', 'Ingrese un precio válido', 'error'); return; }
+    if (precio % 500) { mostrarMsgModal('msg-modal-a', 'El precio debe ser múltiplo de 500 Gs.', 'error'); return; }
+
+    btn.disabled = true; btn.textContent = '⏳ Guardando...';
+    try {
+      const res  = await fetch('/api/productos', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ nombre, precio_guaranies: precio, stock, categoria: cat })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        mostrarMsgModal('msg-modal-a', '✓ Producto agregado correctamente', 'success');
+        setTimeout(() => { cerrarModal('modal-a'); cargarProductos(); cargarTablaGestion(); }, 1200);
+        toast(`✓ Producto "${nombre}" agregado`, 'success');
+      } else {
+        mostrarMsgModal('msg-modal-a', data.error || 'Error al guardar', 'error');
+      }
+    } catch(e) {
+      mostrarMsgModal('msg-modal-a', 'No hay conexión con el servidor', 'error');
+    } finally {
+      btn.disabled = false; btn.textContent = '✅ GUARDAR PRODUCTO';
+    }
+  }
+
+  // ═══ MODAL B — FICHA / PRECIO ══════════════════════════════════════════════
+  let mbColorSeleccionado = '#27AE60';
+
+  function abrirModalB() {
+    mbCambiarAccion('denominacion', document.getElementById('mb-tab-denom'));
+    document.getElementById('mb-d-nombre').value = '';
+    document.getElementById('mb-d-valor').value  = '';
+    limpiarMsgModal('msg-modal-b');
+    abrirModal('modal-b');
+  }
+
+  function abrirModalBConProducto(id, nombre, precioGs) {
+    mbCambiarAccion('precio', document.getElementById('mb-tab-precio'));
+    document.getElementById('mb-p-producto').value = id;
+    document.getElementById('mb-p-precio-actual').textContent = fmt(precioGs) + ' (' + (precioGs / 500) + ' fichas)';
+    document.getElementById('mb-p-precio-nuevo').value = '';
+    document.getElementById('mb-p-equiv').textContent = '— fichas';
+    limpiarMsgModal('msg-modal-b');
+    abrirModal('modal-b');
+    // Cargar productos en el selector si no están
+    cargarSelectorProductos(id);
+  }
+
+  function mbCambiarAccion(accion, btn) {
+    document.querySelectorAll('#mb-accion-btns .filtro-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('mb-panel-denominacion').style.display = accion === 'denominacion' ? '' : 'none';
+    document.getElementById('mb-panel-precio').style.display       = accion === 'precio'       ? '' : 'none';
+    if (accion === 'precio') cargarSelectorProductos();
+    limpiarMsgModal('msg-modal-b');
+  }
+
+  async function cargarSelectorProductos(preseleccionarId = null) {
+    const sel = document.getElementById('mb-p-producto');
+    if (sel.options.length > 1 && !preseleccionarId) return;
+    try {
+      const res   = await fetch('/api/productos');
+      const lista = await res.json();
+      sel.innerHTML = '<option value="">— Seleccionar producto —</option>';
+      lista.forEach(p => {
+        const opt  = document.createElement('option');
+        opt.value  = p._id;
+        opt.textContent = `${p.nombre} — ${fmt(p.precio_guaranies || p.precio * 500)}`;
+        opt.dataset.precioGs = p.precio_guaranies || (p.precio * 500);
+        if (preseleccionarId && p._id === preseleccionarId) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    } catch(e) {}
+  }
+
+  document.getElementById('mb-p-producto').addEventListener('change', function() {
+    const opt = this.options[this.selectedIndex];
+    const gs  = parseInt(opt.dataset.precioGs) || 0;
+    document.getElementById('mb-p-precio-actual').textContent = gs ? fmt(gs) + ' (' + (gs/500) + ' fichas)' : '—';
+  });
+
+  document.getElementById('mb-p-precio-nuevo').addEventListener('input', function() {
+    const gs = parseInt(this.value) || 0;
+    const eq = document.getElementById('mb-p-equiv');
+    if (gs > 0 && gs % 500 === 0) {
+      eq.textContent = (gs / 500) + ' ficha' + (gs / 500 !== 1 ? 's' : '');
+      eq.style.color = '#e67e22';
+    } else {
+      eq.textContent = gs > 0 ? '⚠️ No es múltiplo de 500' : '— fichas';
+      eq.style.color = gs > 0 ? '#e74c3c' : '';
+    }
+  });
+
+  function seleccionarColor(el) {
+    document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
+    el.classList.add('selected');
+    mbColorSeleccionado = el.dataset.color;
+  }
+
+  async function submitModalBDenom() {
+    const btn    = document.getElementById('btn-mb-denom-submit');
+    const nombre = document.getElementById('mb-d-nombre').value.trim();
+    const valor  = parseInt(document.getElementById('mb-d-valor').value) || 0;
+    limpiarMsgModal('msg-modal-b');
+    if (!nombre)     { mostrarMsgModal('msg-modal-b', 'El nombre es obligatorio', 'error'); return; }
+    if (valor <= 0)  { mostrarMsgModal('msg-modal-b', 'Ingrese un valor válido', 'error'); return; }
+    if (valor % 500) { mostrarMsgModal('msg-modal-b', 'El valor debe ser múltiplo de 500 Gs.', 'error'); return; }
+
+    btn.disabled = true; btn.textContent = '⏳ Creando...';
+    try {
+      const res  = await fetch('/api/denominaciones', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ nombre, valor_gs: valor, color: mbColorSeleccionado })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        mostrarMsgModal('msg-modal-b', '✓ Denominación creada correctamente', 'success');
+        setTimeout(() => cerrarModal('modal-b'), 1400);
+        toast(`✓ Denominación "${nombre}" creada`, 'success');
+      } else {
+        mostrarMsgModal('msg-modal-b', data.error || 'Error al crear denominación', 'error');
+      }
+    } catch(e) {
+      mostrarMsgModal('msg-modal-b', 'No hay conexión con el servidor', 'error');
+    } finally {
+      btn.disabled = false; btn.textContent = '💵 CREAR DENOMINACIÓN';
+    }
+  }
+
+  async function submitModalBPrecio() {
+    const btn        = document.getElementById('btn-mb-precio-submit');
+    const productoId = document.getElementById('mb-p-producto').value;
+    const nuevoPrecio = parseInt(document.getElementById('mb-p-precio-nuevo').value) || 0;
+    limpiarMsgModal('msg-modal-b');
+    if (!productoId) { mostrarMsgModal('msg-modal-b', 'Seleccione un producto', 'error'); return; }
+    if (nuevoPrecio <= 0)   { mostrarMsgModal('msg-modal-b', 'Ingrese un precio válido', 'error'); return; }
+    if (nuevoPrecio % 500)  { mostrarMsgModal('msg-modal-b', 'El precio debe ser múltiplo de 500 Gs.', 'error'); return; }
+
+    btn.disabled = true; btn.textContent = '⏳ Actualizando...';
+    try {
+      const res  = await fetch(`/api/productos/${productoId}/precio`, {
+        method: 'PUT', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ precio_guaranies: nuevoPrecio })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        mostrarMsgModal('msg-modal-b', '✓ Precio actualizado correctamente', 'success');
+        setTimeout(() => { cerrarModal('modal-b'); cargarProductos(); cargarTablaGestion(); }, 1200);
+        toast('✓ Precio actualizado', 'success');
+      } else {
+        mostrarMsgModal('msg-modal-b', data.error || 'Error al actualizar', 'error');
+      }
+    } catch(e) {
+      mostrarMsgModal('msg-modal-b', 'No hay conexión con el servidor', 'error');
+    } finally {
+      btn.disabled = false; btn.textContent = '✏️ ACTUALIZAR PRECIO';
+    }
+  }
+
+  // ═══ TOGGLE PRODUCTO (ACTIVAR / DESACTIVAR) ═══════════════════════════════
+  async function toggleProducto(id, activar) {
+    const url = activar ? `/api/productos/${id}/activar` : `/api/productos/${id}/baja`;
+    try {
+      const res  = await fetch(url, { method: 'PUT', headers: {'Content-Type': 'application/json'} });
+      const data = await res.json();
+      if (data.ok) {
+        toast(activar ? '✅ Producto activado' : '🔴 Producto desactivado', activar ? 'success' : 'error');
+        cargarTablaGestion();
+        cargarProductos();
+      } else {
+        toast(data.error || 'Error al cambiar estado', 'error');
+      }
+    } catch(e) { toast('No hay conexión con el servidor', 'error'); }
+  }
+
   // ═══ INIT ══════════════════════════════════════════════════════════════════
-  buildEmisionGrid();
-  recalcularEmision();
+  buildSelectorDenoms();
+  cargarEmisionPorDefecto();
   cargarBalance();
+
+  // Cerrar modales con Escape
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      cerrarModal('modal-a');
+      cerrarModal('modal-b');
+    }
+  });
   </script>
 </body>
 </html>

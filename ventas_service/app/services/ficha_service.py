@@ -2,16 +2,15 @@ import logging
 import json
 from models.ficha_movimiento import crear_movimiento
 from repositories.ficha_repo import guardar_movimiento, total_fichas_emitidas, total_fichas_usadas
+from config import VALOR_FICHA, DENOMINACIONES
 
 logger = logging.getLogger(__name__)
-
-VALOR_FICHA = 1000
 
 
 def emitir_fichas(denominacion, cantidad):
     if cantidad <= 0:
         raise ValueError("La cantidad debe ser mayor a cero")
-    if denominacion not in [1000, 5000, 10000, 15000, 20000]:
+    if denominacion not in DENOMINACIONES:
         raise ValueError("Denominación no válida")
 
     monto_guaranies = denominacion * cantidad

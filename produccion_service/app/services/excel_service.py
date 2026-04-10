@@ -12,11 +12,9 @@ from repositories.ficha_repo import (
     total_fichas_usadas, total_ingresado_guaranies
 )
 from repositories.venta_repo import ventas_por_producto, total_ventas_guaranies
-from config import REPORTS_DIR_VENTAS, REPORTS_DIR_PRODUCCION
+from config import REPORTS_DIR_VENTAS, REPORTS_DIR_PRODUCCION, VALOR_FICHA
 
 logger = logging.getLogger(__name__)
-
-VALOR_FICHA  = 1000
 COLOR_HEADER = "366092"
 COLOR_TOTAL  = "E8F5E9"
 COLOR_WHITE  = "FFFFFF"

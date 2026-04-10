@@ -1,5 +1,6 @@
 from datetime import datetime
 from database import get_db
+from config import VALOR_FICHA
 
 
 def ventas_del_dia(fecha=None):
@@ -55,4 +56,4 @@ def total_ventas_guaranies():
         {"$group": {"_id": None, "total": {"$sum": "$total_fichas"}}},
     ]
     result = list(db.ventas_productos.aggregate(pipeline))
-    return (result[0]["total"] if result else 0) * 1000
+    return (result[0]["total"] if result else 0) * VALOR_FICHA
