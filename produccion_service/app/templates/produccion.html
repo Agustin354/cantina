@@ -202,11 +202,23 @@
     .reporte-item {
       display: flex; align-items: center;
       justify-content: space-between;
-      padding: 10px 0; border-bottom: 1px solid var(--border);
+      padding: 12px 0; border-bottom: 1px solid var(--border);
       gap: 12px; flex-wrap: wrap;
     }
     .reporte-item:last-child { border-bottom: none; }
-    .reporte-nombre { font-size: 0.88rem; font-weight: 600; color: var(--text-sec); }
+    .reporte-info { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+    .reporte-tipo {
+      display: inline-block; padding: 3px 10px; border-radius: 20px;
+      font-size: 0.72rem; font-weight: 800; white-space: nowrap; flex-shrink: 0;
+    }
+    .tipo-manual  { background: #eceff1; color: #455a64; }
+    .tipo-semanal { background: #e3f2fd; color: #1565c0; }
+    .tipo-mensual { background: #f3e5f5; color: #6a1b9a; }
+    [data-theme="dark"] .tipo-manual  { background: #263238; color: #90a4ae; }
+    [data-theme="dark"] .tipo-semanal { background: #1d3557; color: #58a6ff; }
+    [data-theme="dark"] .tipo-mensual { background: #2e1a47; color: #ce93d8; }
+    .reporte-nombre { font-size: 0.88rem; font-weight: 600; color: var(--text-sec); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .reporte-archivo { font-size: 0.74rem; color: var(--text-subtle); }
     #no-reportes { color: var(--text-subtle); padding: 16px 0; font-size: 0.9rem; }
 
     /* ── Toast ───────────────────────────────────────────── */
@@ -470,12 +482,24 @@
         contenedor.innerHTML = '<div id="no-reportes">No hay reportes generados aún.</div>';
         return;
       }
-      contenedor.innerHTML = archivos.map(nombre => `
+      contenedor.innerHTML = archivos.map(nombre => {
+        let tipoCls = 'tipo-manual', tipoLabel = 'Manual', icono = '📋';
+        if (nombre.startsWith('Semanal_')) { tipoCls = 'tipo-semanal'; tipoLabel = 'Semanal'; icono = '📅'; }
+        if (nombre.startsWith('Mensual_')) { tipoCls = 'tipo-mensual'; tipoLabel = 'Mensual'; icono = '📆'; }
+        // Nombre legible: quitar extensión y guiones bajos
+        const legible = nombre.replace(/\.xlsx$/, '').replace(/_/g, ' ');
+        return `
         <div class="reporte-item">
-          <span class="reporte-nombre">📊 ${nombre}</span>
+          <div class="reporte-info">
+            <span class="reporte-tipo ${tipoCls}">${tipoLabel}</span>
+            <div>
+              <div class="reporte-nombre">${icono} ${legible}</div>
+            </div>
+          </div>
           <a href="${BASE_URL}/api/reportes/download/${encodeURIComponent(nombre)}"
              class="btn-descargar" download>⬇️ Descargar</a>
-        </div>`).join('');
+        </div>`;
+      }).join('');
     } catch(e) {
       contenedor.innerHTML = '<div style="color:#e74c3c">No se pudieron cargar los reportes</div>';
     }

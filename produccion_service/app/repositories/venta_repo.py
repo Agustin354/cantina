@@ -57,3 +57,28 @@ def total_ventas_guaranies():
     ]
     result = list(db.ventas_productos.aggregate(pipeline))
     return (result[0]["total"] if result else 0) * VALOR_FICHA
+
+
+def ventas_por_producto_periodo(fecha_inicio: str, fecha_fin: str) -> list:
+    db = get_db()
+    pipeline = [
+        {"$match": {"fecha": {"$gte": fecha_inicio, "$lte": fecha_fin}}},
+        {"$unwind": "$items"},
+        {"$group": {
+            "_id":            "$items.nombre",
+            "total_cantidad": {"$sum": "$items.cantidad"},
+            "total_fichas":   {"$sum": "$items.subtotal_fichas"},
+        }},
+        {"$sort": {"total_cantidad": -1}},
+    ]
+    return list(db.ventas_productos.aggregate(pipeline))
+
+
+def ventas_guaranies_periodo(fecha_inicio: str, fecha_fin: str) -> int:
+    db = get_db()
+    pipeline = [
+        {"$match": {"fecha": {"$gte": fecha_inicio, "$lte": fecha_fin}}},
+        {"$group": {"_id": None, "total": {"$sum": "$total_fichas"}}},
+    ]
+    result = list(db.ventas_productos.aggregate(pipeline))
+    return (result[0]["total"] if result else 0) * VALOR_FICHA
