@@ -34,8 +34,10 @@ def _init_indexes(db):
     # │ [OUTPUT]   Índices creados en Atlas (idempotente)               │
     # └─────────────────────────────────────────────────────────────────┘
     db.ventas_productos.create_index([("fecha", DESCENDING)])
+    db.ventas_productos.create_index([("fecha", DESCENDING), ("timestamp", DESCENDING)])
     db.fichas_movimientos.create_index([("fecha", DESCENDING)])
     db.fichas_movimientos.create_index([("tipo", ASCENDING)])
+    db.fichas_movimientos.create_index([("fecha", DESCENDING), ("tipo", ASCENDING)])
     db.productos.create_index([("nombre", ASCENDING)], unique=True, sparse=True)
     db.productos.create_index([("categoria", ASCENDING)])
     db.productos.create_index([("rango", ASCENDING)])

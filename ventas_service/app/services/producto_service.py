@@ -3,7 +3,7 @@ import json
 from config import VALOR_FICHA, PRECIO_MULTIPLO, calcular_rango
 from models.producto import crear_producto
 from repositories.producto_repo import (
-    listar_activos, listar_todos, obtener_por_id, actualizar_stock,
+    listar_activos, listar_todos, obtener_por_id, obtener_por_ids, actualizar_stock,
     buscar_por_nombre, insertar_producto, actualizar_precio as repo_actualizar_precio,
     desactivar_producto, activar_producto as repo_activar_producto,
 )
@@ -126,8 +126,11 @@ def reactivar_producto(producto_id: str) -> None:
 # (two-phase commit: verificar todo primero, luego descontar)
 # ═══════════════════════════════════════════════════════════════
 def verificar_y_descontar_stock(items: list) -> None:
+    # Fase 1: carga todos los productos en una sola consulta (evita N+1)
+    productos = obtener_por_ids([item["producto_id"] for item in items])
+
     for item in items:
-        producto = obtener_por_id(item["producto_id"])
+        producto = productos.get(item["producto_id"])
         if not producto:
             raise ValueError("Producto no encontrado")
         if not producto.get("activo", False):
@@ -138,6 +141,7 @@ def verificar_y_descontar_stock(items: list) -> None:
                 f"Disponible: {producto['stock']}, solicitado: {item['cantidad']}"
             )
 
+    # Fase 2: descuenta stock solo si todas las validaciones pasaron
     for item in items:
         actualizar_stock(item["producto_id"], item["cantidad"])
         logger.info(json.dumps({

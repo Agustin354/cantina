@@ -7,21 +7,21 @@ from database import get_db
 logger = logging.getLogger(__name__)
 
 
+def _stringify_ids(docs: list) -> list:
+    for doc in docs:
+        doc["_id"] = str(doc["_id"])
+    return docs
+
+
 def listar_activos() -> list:
     db = get_db()
-    productos = list(db.productos.find({"activo": True}).sort("nombre", 1))
-    for p in productos:
-        p["_id"] = str(p["_id"])
-    return productos
+    return _stringify_ids(list(db.productos.find({"activo": True}).sort("nombre", 1)))
 
 
 def listar_todos() -> list:
     """Incluye inactivos — solo para el panel de gestión."""
     db = get_db()
-    productos = list(db.productos.find({}).sort("nombre", 1))
-    for p in productos:
-        p["_id"] = str(p["_id"])
-    return productos
+    return _stringify_ids(list(db.productos.find({}).sort("nombre", 1)))
 
 
 def obtener_por_id(producto_id: str) -> dict | None:
@@ -35,6 +35,23 @@ def obtener_por_id(producto_id: str) -> dict | None:
     return p
 
 
+def obtener_por_ids(producto_ids: list) -> dict:
+    """Devuelve {producto_id: producto} para todos los IDs en una sola consulta."""
+    db = get_db()
+    oids = []
+    for pid in producto_ids:
+        try:
+            oids.append(ObjectId(pid))
+        except Exception:
+            pass
+    docs = list(db.productos.find({"_id": {"$in": oids}}))
+    result = {}
+    for doc in docs:
+        doc["_id"] = str(doc["_id"])
+        result[doc["_id"]] = doc
+    return result
+
+
 def buscar_por_nombre(nombre: str) -> dict | None:
     """Búsqueda insensible a mayúsculas para validar nombre único."""
     db = get_db()
@@ -45,21 +62,15 @@ def insertar_producto(doc: dict) -> str:
     db = get_db()
     result = db.productos.insert_one(doc)
     logger.info(json.dumps({
-        "event":    "producto_insertado",
-        "id":       str(result.inserted_id),
-        "nombre":   doc.get("nombre", ""),
+        "event":  "producto_insertado",
+        "id":     str(result.inserted_id),
+        "nombre": doc.get("nombre", ""),
     }))
     return str(result.inserted_id)
 
 
 def actualizar_precio(producto_id: str, nuevo_precio: int, nuevo_precio_gs: int,
                       nuevo_rango: str, usuario: str = "sistema") -> None:
-    # ┌─────────────────────────────────────────────────────────────────┐
-    # │ [SECCIÓN]  audit_precio                                         │
-    # │ [PROPÓSITO] Registrar historial antes de actualizar             │
-    # │ [INPUT]    producto_id, precios nuevos, usuario                 │
-    # │ [OUTPUT]   Documento actualizado + entrada en historial_precios  │
-    # └─────────────────────────────────────────────────────────────────┘
     db = get_db()
     prod = db.productos.find_one({"_id": ObjectId(producto_id)})
     if not prod:
@@ -87,11 +98,11 @@ def actualizar_precio(producto_id: str, nuevo_precio: int, nuevo_precio_gs: int,
         }
     )
     logger.info(json.dumps({
-        "event":         "precio_actualizado",
-        "producto_id":   producto_id,
-        "precio_ant_gs": entrada_hist["precio_anterior_gs"],
+        "event":           "precio_actualizado",
+        "producto_id":     producto_id,
+        "precio_ant_gs":   entrada_hist["precio_anterior_gs"],
         "precio_nuevo_gs": nuevo_precio_gs,
-        "usuario":       usuario,
+        "usuario":         usuario,
     }))
 
 
