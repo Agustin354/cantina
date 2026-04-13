@@ -3,9 +3,10 @@ import json
 import sys
 from datetime import date, timedelta
 from flask import Flask
+from flask_cors import CORS
 from apscheduler.schedulers.background import BackgroundScheduler
 import pytz
-from config import SECRET_KEY, EXTERNAL_PREFIX
+from config import SECRET_KEY, EXTERNAL_PREFIX, CORS_ORIGINS
 
 # ─── Logging en formato JSON ───────────────────────────────────────────────────
 logging.basicConfig(
@@ -18,6 +19,10 @@ logger = logging.getLogger(__name__)
 # ─── App Flask ─────────────────────────────────────────────────────────────────
 app = Flask(__name__, template_folder="templates")
 app.secret_key = SECRET_KEY
+
+# CORS: permite fetch cross-origin desde ventas_service (Railway)
+if CORS_ORIGINS:
+    CORS(app, origins=CORS_ORIGINS.split(","), supports_credentials=True)
 
 # Cookie con nombre y path distintos para no conflictuar con ventas_service
 app.config["SESSION_COOKIE_NAME"]     = "produccion_session"

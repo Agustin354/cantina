@@ -1,7 +1,7 @@
 import logging
 import json
 from flask import Blueprint, request, session, redirect, render_template, jsonify
-from config import USUARIOS, EXTERNAL_PREFIX
+from config import USUARIOS, EXTERNAL_PREFIX, EXTERNAL_URL
 
 logger = logging.getLogger(__name__)
 
@@ -9,7 +9,8 @@ auth_bp = Blueprint("auth", __name__)
 
 
 def _dashboard_url():
-    return EXTERNAL_PREFIX + "/produccion"
+    base = EXTERNAL_URL if EXTERNAL_URL else EXTERNAL_PREFIX
+    return base + "/produccion"
 
 
 def _login_url():

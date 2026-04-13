@@ -264,9 +264,10 @@
     btn.textContent = 'Ingresando...';
     msg.className = 'msg';
     try {
-      const res = await fetch('/produccion/login/produccion', {
+      const res = await fetch('{{ produccion_url }}/login/produccion', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
+        credentials: 'include',
         body: JSON.stringify({usuario, password})
       });
       const data = await res.json();

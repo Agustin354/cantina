@@ -1,3 +1,4 @@
+import os
 import logging
 import json
 from flask import Blueprint, request, session, redirect, url_for, render_template, jsonify
@@ -12,7 +13,8 @@ auth_bp = Blueprint("auth", __name__)
 def index():
     if session.get("role") == "ventas":
         return redirect("/ventas")
-    return render_template("login.html")
+    produccion_url = os.getenv("PRODUCCION_URL", "/produccion")
+    return render_template("login.html", produccion_url=produccion_url)
 
 
 @auth_bp.route("/login/ventas", methods=["POST"])
