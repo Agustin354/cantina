@@ -1,8 +1,15 @@
 import logging
 import json
 import sys
+import os
 from flask import Flask
 from config import SECRET_KEY
+
+_template_folder = (
+    os.path.join(sys._MEIPASS, 'app', 'templates')
+    if getattr(sys, 'frozen', False)
+    else 'templates'
+)
 
 # ─── Logging en formato JSON ───────────────────────────────────────────────────
 logging.basicConfig(
@@ -13,7 +20,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # ─── App Flask ─────────────────────────────────────────────────────────────────
-app = Flask(__name__, template_folder="templates")
+app = Flask(__name__, template_folder=_template_folder)
 app.secret_key = SECRET_KEY
 app.config["SESSION_COOKIE_NAME"] = "ventas_session"
 app.config["SESSION_COOKIE_PATH"] = "/"

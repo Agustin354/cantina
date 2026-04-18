@@ -1,9 +1,16 @@
 import logging
 import json
 import sys
+import os
 from datetime import date, timedelta
 from flask import Flask
 from flask_cors import CORS
+
+_template_folder = (
+    os.path.join(sys._MEIPASS, 'app', 'templates')
+    if getattr(sys, 'frozen', False)
+    else 'templates'
+)
 from apscheduler.schedulers.background import BackgroundScheduler
 import pytz
 from config import SECRET_KEY, EXTERNAL_PREFIX, CORS_ORIGINS
@@ -17,7 +24,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # ─── App Flask ─────────────────────────────────────────────────────────────────
-app = Flask(__name__, template_folder="templates")
+app = Flask(__name__, template_folder=_template_folder)
 app.secret_key = SECRET_KEY
 
 # CORS: permite fetch cross-origin desde ventas_service (Railway)

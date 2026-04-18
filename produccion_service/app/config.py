@@ -23,5 +23,5 @@ USUARIOS = {
     "Producción": {"password": "Producción", "role": "produccion"},
 }
 
-REPORTS_DIR_VENTAS     = "/reports/ventas"
-REPORTS_DIR_PRODUCCION = "/reports/produccion"
+REPORTS_DIR_VENTAS     = os.getenv("REPORTS_DIR_VENTAS",     "/reports/ventas")
+REPORTS_DIR_PRODUCCION = os.getenv("REPORTS_DIR_PRODUCCION", "/reports/produccion")

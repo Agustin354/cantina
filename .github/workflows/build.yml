@@ -1,0 +1,84 @@
+name: Build y Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar dependencias
+        run: |
+          pip install pyinstaller
+          pip install -r ventas_service/requirements.txt
+          pip install -r produccion_service/requirements.txt
+
+      - name: Inyectar credenciales MongoDB
+        shell: pwsh
+        run: |
+          (Get-Content ventas_service/launcher.py)    -replace 'PLACEHOLDER_MONGODB_URI', '${{ secrets.MONGODB_URI }}' | Set-Content ventas_service/launcher.py
+          (Get-Content produccion_service/launcher.py) -replace 'PLACEHOLDER_MONGODB_URI', '${{ secrets.MONGODB_URI }}' | Set-Content produccion_service/launcher.py
+
+      - name: Build SistemaVentas.exe
+        run: |
+          pyinstaller --onefile --windowed --name SistemaVentas `
+            --add-data "ventas_service/app/templates;app/templates" `
+            --add-data "ventas_service/app;app" `
+            --hidden-import dns --hidden-import dns.resolver `
+            --hidden-import dns.rdatatype --hidden-import dns.rdataclass `
+            --hidden-import certifi --hidden-import pymongo `
+            --hidden-import bson --hidden-import flask `
+            --hidden-import jinja2 --hidden-import werkzeug `
+            ventas_service/launcher.py
+
+      - name: Build SistemaProduccion.exe
+        run: |
+          pyinstaller --onefile --windowed --name SistemaProduccion `
+            --add-data "produccion_service/app/templates;app/templates" `
+            --add-data "produccion_service/app;app" `
+            --hidden-import dns --hidden-import dns.resolver `
+            --hidden-import dns.rdatatype --hidden-import dns.rdataclass `
+            --hidden-import certifi --hidden-import pymongo `
+            --hidden-import bson --hidden-import flask `
+            --hidden-import jinja2 --hidden-import werkzeug `
+            --hidden-import apscheduler --hidden-import apscheduler.schedulers.background `
+            --hidden-import pytz --hidden-import openpyxl `
+            produccion_service/launcher.py
+
+      - name: Crear Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: "Sistema Tía Perla – Build ${{ github.run_number }}"
+          body: |
+            ## Cómo instalar
+
+            | Archivo | PC destino |
+            |---------|-----------|
+            | `SistemaVentas.exe` | PC de Ventas |
+            | `SistemaProduccion.exe` | PC de Producción |
+
+            **Pasos:**
+            1. Descargá el archivo correspondiente
+            2. Hacé doble click → el sistema abre solo en el navegador
+            3. El programa se cierra automáticamente a las 18:00
+
+            > Los reportes de producción se guardan en `Documentos\TiaPerla\reports`
+          files: |
+            dist/SistemaVentas.exe
+            dist/SistemaProduccion.exe
+          token: ${{ secrets.GITHUB_TOKEN }}
